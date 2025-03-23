@@ -17,3 +17,14 @@ Este repositorio es mi proyecto Final del grado, en el subiré todo el contenido
     - **Alertas**: Esta tabla se encarga de almacenar alertas que se van generando en base a la información de los alimentos.
 - ### Modelo entidad relación:
    ![Modelo entidad relación](/imagenes/Relación%20Base%20de%20datos.png) 
+- ### Procedimientos Almacenados:
+    1. Insertar Alimentos en la base de datos, este debe de validar previamente que el proveedor, tipo de alimento y ambiente existan previamente.
+    2. Insertar un usuario nuevo en la base de datos cuando se registre.
+    3. Insertar proveedores nuevos que no se encuentren en la base de datos.
+    4. Insertar el ambiente del alimento cuando se añada el alimento.
+    5. Insertar el tipo de alimento a la hora de añadir el alimento.
+    6. Actualizar el stock de los alimentos al agregar o eliminarlos, para mantener actualizados los datos.
+    7. Generar alertas de alimentos que están por caducar, para avisar al usuario de que los alimentos estan por caducar.
+    8. Generar un inventario por tipo de alimento, para asir tener mejor agrupado los datos.
+    9. Eliminar alimentos que ya están caducados y que no tenga stock, para evitar tener almacenados datos innecesarios.
+    10. Evitar cantidades negativas en el inventario, ya que ahi que registrar los alimentos de forma segura. 
