@@ -15,3 +15,5 @@ Este repositorio es mi proyecto Final del grado, en el subiré todo el contenido
     - **Usuario**: Esta tabla almacena los datos del usuario de la aplicación, como su usuario, correo o contraseña.
     - **Registro de consumo**: Esta tabla se encarga de almacenar un registro del consumo de alimentos.
     - **Alertas**: Esta tabla se encarga de almacenar alertas que se van generando en base a la información de los alimentos.
+- ### Modelo entidad relación:
+   ![Modelo entidad relación](/imagenes/Relación%20Base%20de%20datos.png) 
