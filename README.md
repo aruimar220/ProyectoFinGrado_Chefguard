@@ -6,6 +6,7 @@ Este repositorio es mi proyecto Final del grado, en el subiré todo el contenido
 - Para almacenar el proyecto utilizaré Git Hub, ya que ahí subire todos los cambios que vaya realizando en la aplicación.
 - La IA que voy a integrar es la de OPEN IA de Chat GPT, selecciono esta por que la considero la más adecuada para preguntas cotidianas sobre comida, recetas o que pueda ayudar a seleccionar el entorno donde se van a conservar los alimentos.
 ## Base de datos
+En el repositorio puedes encontrar chefguard.sql que es una base de datos de prueba con datos reales de los datos que se explican mas a bajo.
 - ### Tablas:
     - **Alimentos**: Esta tabla se encarga de almacenar todos los alimentos que se van guardando en la aplicación.
     - **Tipo_Alimento**: Esta tabla se encarga de asociar el tipo con el alimento que es, como por ejemplo los carnicos, lácteos, etc.
