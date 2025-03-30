@@ -15,9 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.chefguard.ui.theme.ChefguardTheme
-
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,14 +45,16 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+    Text(text = "$name!")
 }
 
 @Composable
 fun NavigationGraph(navController: NavHostController) {
     NavHost(navController, startDestination = "home") {
         composable("home") { Greeting("Android") }
-
+        composable("inventory") { Greeting("Inventario") }
+        composable("alerts") { Greeting("Alertas") }
+        composable("profile") { Greeting("Perfil") }
     }
 }
 
@@ -65,6 +66,24 @@ fun BottomNavigationBar(navController: NavHostController) {
             onClick = { navController.navigate("home") },
             icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
             label = { Text("Inicio") }
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("inventory") },
+            icon = { Icon(Icons.Filled.List, contentDescription = "Inventario") },
+            label = { Text("Inventario") }
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("alerts") },
+            icon = { Icon(Icons.Filled.Warning, contentDescription = "Alertas") },
+            label = { Text("Alertas") }
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("profile") },
+            icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
+            label = { Text("Perfil") }
         )
     }
 }
