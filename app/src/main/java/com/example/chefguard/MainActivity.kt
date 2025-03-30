@@ -6,12 +6,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.*
 import com.example.chefguard.ui.theme.ChefguardTheme
+
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,36 +25,58 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ChefguardTheme {
+                val navController = rememberNavController()
                 Scaffold(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = { BottomNavigationBar(navController) }
                 ) { innerPadding ->
-                    WelcomeScreen(modifier = Modifier.padding(innerPadding))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        NavigationGraph(navController)
+                    }
                 }
             }
         }
     }
 }
 
+@Composable
+fun Greeting(name: String) {
+    Text(text = "Hello $name!")
+}
 
 @Composable
-fun WelcomeScreen(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = "¡Bienvenido a ChefGuard!", style = MaterialTheme.typography.headlineLarge)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Gestiona tus alimentos y evita desperdicios", style = MaterialTheme.typography.bodyLarge)
+fun NavigationGraph(navController: NavHostController) {
+    NavHost(navController, startDestination = "home") {
+        composable("home") { Greeting("Android") }
+        // Aquí puedes agregar más pantallas
+    }
+}
+
+@Composable
+fun BottomNavigationBar(navController: NavHostController) {
+    NavigationBar {
+        NavigationBarItem(
+            selected = true,
+            onClick = { navController.navigate("home") },
+            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") }, // Ícono corregido 📌
+            label = { Text("Inicio") }
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun WelcomeScreenPreview() {
+fun GreetingPreview() {
     ChefguardTheme {
-        WelcomeScreen()
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Greeting("Android")
+        }
     }
 }
+
+
