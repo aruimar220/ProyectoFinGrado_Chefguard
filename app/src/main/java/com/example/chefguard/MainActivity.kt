@@ -53,7 +53,7 @@ fun Greeting(name: String) {
 fun NavigationGraph(navController: NavHostController) {
     NavHost(navController, startDestination = "home") {
         composable("home") { Greeting("Android") }
-        // Aquí puedes agregar más pantallas
+
     }
 }
 
@@ -63,7 +63,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         NavigationBarItem(
             selected = true,
             onClick = { navController.navigate("home") },
-            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") }, // Ícono corregido 📌
+            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
             label = { Text("Inicio") }
         )
     }
