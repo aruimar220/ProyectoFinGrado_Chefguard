@@ -18,6 +18,7 @@ import com.example.chefguard.ui.theme.ChefguardTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 
+// Inicializa la interfaz de usuario y habilita el modo Edge-to-Edge
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,21 +46,22 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String) {
-    Text(text = "$name!")
+    Text(text = "$name!") //Imprime mensaje mostrado por pantalla al usuario por la App
 }
 
 @Composable
 fun NavigationGraph(navController: NavHostController) {
     NavHost(navController, startDestination = "home") {
-        composable("home") { Greeting("Android") }
-        composable("inventory") { Greeting("Inventario") }
-        composable("alerts") { Greeting("Alertas") }
-        composable("profile") { Greeting("Perfil") }
+        composable("home") { Greeting("Android") } // Inicia la navegación con la pantalla "home".
+        composable("inventory") { Greeting("Inventario") }  //Ruta que lleva a inventario
+        composable("alerts") { Greeting("Alertas") } //Ruta que lleva a alertas
+        composable("profile") { Greeting("Perfil") } //Ruta que lleva a perfil
     }
 }
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
+    // Construye la barra de navegación en la parte inferior.
     NavigationBar {
         NavigationBarItem(
             selected = true,
@@ -87,7 +89,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         )
     }
 }
-
+// Esta función es solo para vista previa en el editor de diseño de Android Studio.
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
