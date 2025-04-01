@@ -23,6 +23,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.chefguard.ui.screens.HomeScreen
+import com.example.chefguard.ui.screens.InventoryScreen
 import com.example.chefguard.ui.theme.ChefguardTheme
 
 class MainActivity : ComponentActivity() {
@@ -77,7 +78,7 @@ fun MainScreen(text: String) {
 fun NavigationGraph(navController: NavHostController) {
     NavHost(navController, startDestination = "home") {
         composable("home") { HomeScreen(username = "Android") }
-        composable("inventory") { MainScreen("Inventario") }
+        composable("inventory") { InventoryScreen() }
         composable("alerts") { MainScreen("Alertas") }
         composable("profile") { MainScreen("Perfil") }
     }
