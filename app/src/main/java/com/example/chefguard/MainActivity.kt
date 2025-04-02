@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                         contentAlignment = Alignment.Center
                     ) {
                         NavHost(navController, startDestination = "home") {
-                            composable("home") { HomeScreen(username = "Usuario") }
+                            composable("home") { HomeScreen() }
                             composable("inventory") { InventoryScreen() }
                             composable("alerts") { AlertsScreen() }
                             composable("profile") { ProfileScreen() }
