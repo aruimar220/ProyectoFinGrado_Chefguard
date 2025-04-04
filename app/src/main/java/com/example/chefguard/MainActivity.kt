@@ -40,17 +40,18 @@ class MainActivity : ComponentActivity() {
                         contentAlignment = Alignment.Center
                     ) {
                         NavHost(navController, startDestination = "home") {
-                            composable("home") { HomeScreen() }
-                            composable("inventory") { InventoryScreen() }
-                            composable("alerts") { AlertsScreen() }
-                            composable("profile") { ProfileScreen() }
+                            composable(route = "home") { HomeScreen(navController) }
+                            composable(route = "inventory") { InventoryScreen() }
+                            composable(route = "alerts") { AlertsScreen() }
+                            composable(route = "profile") { ProfileScreen() }
+                        }
                         }
                     }
                 }
             }
         }
     }
-}
+
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {

@@ -1,6 +1,5 @@
 package com.example.chefguard.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,63 +14,63 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun HomeScreen(navController: NavController? = null) {
+fun HomeScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Bienvenido a ChefGuard",
+            text = "Bienvenido a ChefGuard!",
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
 
-        // Tarjeta de Inventario
-        HomeCard(
-            title = "Inventario",
-            description = "Gestiona tus ingredientes y productos",
-            color = Color(0xFF4CAF50),
-            onClick = { navController?.navigate("inventory") }
-        )
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Tarjeta de Alertas
-        HomeCard(
-            title = "Alertas",
-            description = "Revisa las notificaciones importantes",
-            color = Color(0xFFFF9800),
-            onClick = { navController?.navigate("alerts") }
-        )
-
-        // Tarjeta de Perfil
-        HomeCard(
-            title = "Perfil",
-            description = "Administra tu cuenta y configuraciones",
-            color = Color(0xFF2196F3),
-            onClick = { navController?.navigate("profile") }
-        )
-    }
-}
-
-@Composable
-fun HomeCard(title: String, description: String, color: Color, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(8.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = color)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .clickable { navController.navigate("inventory") },
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50))
         ) {
-            Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            Text(text = description, fontSize = 16.sp, color = Color.White)
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Inventario", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = "Revisa y gestiona tus productos", fontSize = 16.sp, color = Color.White)
+            }
+        }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .clickable { navController.navigate("alerts") },
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFF9800))
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Alertas", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = "Recibe notificaciones importantes", fontSize = 16.sp, color = Color.White)
+            }
+        }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .clickable { navController.navigate("profile") },
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF2196F3))
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Perfil", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = "Administra tu información personal", fontSize = 16.sp, color = Color.White)
+            }
         }
     }
 }
