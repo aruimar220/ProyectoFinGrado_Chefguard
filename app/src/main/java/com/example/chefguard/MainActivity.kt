@@ -21,6 +21,8 @@ import com.example.chefguard.ui.screens.AlertsScreen
 import com.example.chefguard.ui.screens.ProfileScreen
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import com.example.chefguard.ui.screens.LoginScreen
+import com.example.chefguard.ui.screens.RegisterScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +41,9 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding),
                         contentAlignment = Alignment.Center
                     ) {
-                        NavHost(navController, startDestination = "home") {
+                        NavHost(navController, startDestination = "login") {
+                            composable("login") { LoginScreen(navController) }
+                            composable("register") { RegisterScreen(navController) }
                             composable(route = "home") { HomeScreen(navController) }
                             composable(route = "inventory") { InventoryScreen() }
                             composable(route = "alerts") { AlertsScreen() }
