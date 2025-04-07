@@ -3,37 +3,37 @@ package com.example.chefguard
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.example.chefguard.ui.components.BottomNavBar
-import com.example.chefguard.ui.screens.*
+import androidx.navigation.compose.*
 import com.example.chefguard.ui.theme.ChefguardTheme
+import com.example.chefguard.ui.screens.HomeScreen
+import com.example.chefguard.ui.screens.InventoryScreen
+import com.example.chefguard.ui.screens.AlertsScreen
+import com.example.chefguard.ui.screens.ProfileScreen
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import com.example.chefguard.ui.screens.LoginScreen
+import com.example.chefguard.ui.screens.RegisterScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             ChefguardTheme {
                 val navController = rememberNavController()
-
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route ?: ""
-
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        if (currentRoute !in listOf("login", "register")) {
-                            BottomNavBar(navController)
-                        }
-                    }
+                    bottomBar = { BottomNavigationBar(navController) }
                 ) { innerPadding ->
                     Box(
                         modifier = Modifier
@@ -41,20 +41,48 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding),
                         contentAlignment = Alignment.Center
                     ) {
-                        NavHost(
-                            navController = navController,
-                            startDestination = "login"
-                        ) {
+                        NavHost(navController, startDestination = "login") {
                             composable("login") { LoginScreen(navController) }
                             composable("register") { RegisterScreen(navController) }
-                            composable("home") { HomeScreen(navController) }
-                            composable("inventory") { InventoryScreen() }
-                            composable("alerts") { AlertsScreen() }
-                            composable("profile") { ProfileScreen() }
+                            composable(route = "home") { HomeScreen(navController) }
+                            composable(route = "inventory") { InventoryScreen() }
+                            composable(route = "alerts") { AlertsScreen() }
+                            composable(route = "profile") { ProfileScreen() }
+                        }
                         }
                     }
                 }
             }
         }
+    }
+
+
+@Composable
+fun BottomNavigationBar(navController: NavHostController) {
+    NavigationBar {
+        NavigationBarItem(
+            selected = true,
+            onClick = { navController.navigate("home") },
+            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
+            label = { Text("Inicio") }
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("inventory") },
+            icon = { Icon(Icons.Filled.List, contentDescription = "Inventario") },
+            label = { Text("Inventario") }
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("alerts") },
+            icon = { Icon(Icons.Filled.Warning, contentDescription = "Alertas") },
+            label = { Text("Alertas") }
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("profile") },
+            icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
+            label = { Text("Perfil") }
+        )
     }
 }
