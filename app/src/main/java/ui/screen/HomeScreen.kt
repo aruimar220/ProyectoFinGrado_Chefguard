@@ -3,6 +3,11 @@ package com.example.chefguard.ui.screens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -12,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -72,5 +78,35 @@ fun HomeScreen(navController: NavController) {
                 Text(text = "Administra tu información personal", fontSize = 16.sp, color = Color.White)
             }
         }
+    }
+}
+
+@Composable
+fun BottomNavigationBar(navController: NavHostController) {
+    NavigationBar {
+        NavigationBarItem(
+            selected = true,
+            onClick = { navController.navigate("home") },
+            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
+            label = { Text("Inicio") }
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("inventory") },
+            icon = { Icon(Icons.Filled.List, contentDescription = "Inventario") },
+            label = { Text("Inventario") }
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("alerts") },
+            icon = { Icon(Icons.Filled.Warning, contentDescription = "Alertas") },
+            label = { Text("Alertas") }
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("profile") },
+            icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
+            label = { Text("Perfil") }
+        )
     }
 }
