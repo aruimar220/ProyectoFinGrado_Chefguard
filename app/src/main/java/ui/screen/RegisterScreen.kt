@@ -46,7 +46,6 @@ fun RegisterScreen(navController: NavController) {
 
         Button(
             onClick = {
-                // Aquí guardarías el usuario en base de datos (más adelante)
                 navController.navigate("login") {
                     popUpTo("register") { inclusive = true }
                 }

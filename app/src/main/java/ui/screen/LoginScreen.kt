@@ -46,7 +46,6 @@ fun LoginScreen(navController: NavController) {
 
         Button(
             onClick = {
-                // Aquí se validaría el login real
                 navController.navigate("home") {
                     popUpTo("login") { inclusive = true }
                 }
