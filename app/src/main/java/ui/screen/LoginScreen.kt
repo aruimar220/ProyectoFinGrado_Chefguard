@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var rememberMe by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -42,7 +43,20 @@ fun LoginScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Checkbox(
+                checked = rememberMe,
+                onCheckedChange = { rememberMe = it }
+            )
+            Text("Mantener sesión iniciada")
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         Button(
             onClick = {
@@ -56,6 +70,13 @@ fun LoginScreen(navController: NavController) {
         }
 
         Spacer(modifier = Modifier.height(10.dp))
+
+        TextButton(onClick = {
+        }) {
+            Text("¿Olvidaste tu contraseña?")
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
 
         TextButton(onClick = {
             navController.navigate("register")
