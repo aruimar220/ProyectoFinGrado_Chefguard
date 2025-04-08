@@ -72,9 +72,11 @@ fun LoginScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(10.dp))
 
         TextButton(onClick = {
+            navController.navigate("recover")
         }) {
             Text("¿Olvidaste tu contraseña?")
         }
+
 
         Spacer(modifier = Modifier.height(4.dp))
 
