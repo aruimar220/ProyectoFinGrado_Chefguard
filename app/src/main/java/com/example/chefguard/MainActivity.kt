@@ -49,7 +49,9 @@ class MainActivity : ComponentActivity() {
                             composable("register") { RegisterScreen(navController) }
                             composable("home") { HomeScreen(navController) }
                             composable("recover") { RecoverPasswordScreen(navController) }
-                            composable("inventory") { InventoryScreen() }
+                            composable("addItems") { AddItemsScreen(navController) }
+                            composable("itemDetail") { ItemDetailScreen() }
+                            composable("inventory") { InventoryScreen(navController) }
                             composable("alerts") { AlertsScreen() }
                             composable("profile") { ProfileScreen() }
                         }

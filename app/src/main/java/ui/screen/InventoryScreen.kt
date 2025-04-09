@@ -6,34 +6,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 
 @Composable
-fun InventoryScreen() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Inventario",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
+fun InventoryScreen(navController: NavController) {
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate("addItems")
+                }
+            ) {
+                Text("+") // boton para añadir :)
+            }
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(24.dp)
+        ) {
+            Text("Inventario", style = MaterialTheme.typography.headlineMedium)
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        // buscador del inventario
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            label = { Text("Buscar producto") },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = false // de momento desactivado
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Aquí irá la lista de productos (de momento vacía)
-        Text("No hay productos aún.", style = MaterialTheme.typography.bodyMedium)
+            // Aquí irán las tarjetas o elementos del inventario vacdio de momento
+            Text("Aquí se listarán los alimentos registrados...")
+        }
     }
 }
