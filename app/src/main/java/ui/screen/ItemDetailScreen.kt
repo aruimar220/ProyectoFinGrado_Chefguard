@@ -7,20 +7,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ItemDetailScreen() {
+fun ItemDetailScreen(nombre: String) {
+    val alimento = alimentosEjemplo.find { it.nombre == nombre }
+
+    if (alimento == null) {
+        Text("Alimento no encontrado.")
+        return
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        Text("Detalles del Alimento", style = MaterialTheme.typography.headlineMedium)
+        Text("Detalle del Alimento", style = MaterialTheme.typography.headlineMedium)
+
         Spacer(modifier = Modifier.height(20.dp))
 
-        Text("Nombre: Tomate")
-        Text("Cantidad: 5")
-        Text("Fecha de caducidad: 2025-04-30")
-        Text("Estado: Disponible")
-        Text("Proveedor: Proveedor Demo")
-        Text("Tipo de ambiente: Refrigerado")
+        Text("Nombre: ${alimento.nombre}")
+        Text("Estado: ${alimento.estado}")
+        Text("Cantidad: ${alimento.cantidad}")
+        Text("Fecha de Caducidad: ${alimento.fechaCaducidad}")
     }
 }

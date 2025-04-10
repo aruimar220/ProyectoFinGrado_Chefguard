@@ -50,10 +50,14 @@ class MainActivity : ComponentActivity() {
                             composable("home") { HomeScreen(navController) }
                             composable("recover") { RecoverPasswordScreen(navController) }
                             composable("addItems") { AddItemsScreen(navController) }
-                            composable("itemDetail") { ItemDetailScreen() }
                             composable("inventory") { InventoryScreen(navController) }
                             composable("alerts") { AlertsScreen() }
                             composable("profile") { ProfileScreen() }
+                            composable("item_detail/{nombre}") { backStackEntry ->
+                                val nombre = backStackEntry.arguments?.getString("nombre") ?: ""
+                                ItemDetailScreen(nombre)
+                            }
+
                         }
                     }
                 }
