@@ -49,8 +49,8 @@ class MainActivity : ComponentActivity() {
                             composable("register") { RegisterScreen(navController) }
                             composable("home") { HomeScreen(navController) }
                             composable("recover") { RecoverPasswordScreen(navController) }
-                            composable("addItems") { AddItemsScreen(navController) }
                             composable("inventory") { InventoryScreen(navController) }
+                            composable("add_item") { AddItemsScreen(navController) }
                             composable("alerts") { AlertsScreen() }
                             composable("profile") { ProfileScreen() }
                             composable("item_detail/{nombre}") { backStackEntry ->
