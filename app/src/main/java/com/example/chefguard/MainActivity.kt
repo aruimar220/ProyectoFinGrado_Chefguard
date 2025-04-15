@@ -9,10 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.chefguard.ui.components.BottomNavBar
 import com.example.chefguard.ui.screens.*
 import com.example.chefguard.ui.theme.ChefguardTheme
@@ -49,13 +51,17 @@ class MainActivity : ComponentActivity() {
                             composable("register") { RegisterScreen(navController) }
                             composable("home") { HomeScreen(navController) }
                             composable("recover") { RecoverPasswordScreen(navController) }
-                            composable("inventory") { InventoryScreen(navController) }
                             composable("add_item") { AddItemsScreen(navController) }
                             composable("alerts") { AlertsScreen() }
                             composable("profile") { ProfileScreen() }
-                            composable("item_detail/{nombre}") { backStackEntry ->
-                                val nombre = backStackEntry.arguments?.getString("nombre") ?: ""
-                                ItemDetailScreen(nombre)
+                            composable("add_items") { AddItemsScreen(navController) }
+                            composable("inventory") { InventoryScreen(navController) }
+                            composable(
+                                route = "item_details/{id}",
+                                arguments = listOf(navArgument("id") { type = NavType.IntType })
+                            ) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getInt("id") ?: 0
+                                ItemDetailsScreen(navController, id)
                             }
 
                         }

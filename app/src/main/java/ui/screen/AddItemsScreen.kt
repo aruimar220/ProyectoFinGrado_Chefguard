@@ -4,8 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.chefguard.model.AlimentoEntity
+import com.example.chefguard.model.AppDatabase
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddItemsScreen(navController: NavController) {
@@ -18,6 +22,10 @@ fun AddItemsScreen(navController: NavController) {
     var proveedor by remember { mutableStateOf("") }
     var tipoAlimento by remember { mutableStateOf("") }
     var ambiente by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val db = AppDatabase.getDatabase(context)
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -111,8 +119,25 @@ fun AddItemsScreen(navController: NavController) {
 
         Button(
             onClick = {
-                // esta parte guarda en la base de datos cuando se conecte
-                navController.navigate("inventory")
+                if (nombre.isNotBlank() && cantidad.toIntOrNull() != null) {
+                    val nuevoAlimento = AlimentoEntity(
+                        nombre = nombre,
+                        cantidad = cantidad.toInt(),
+                        fechaCaducidad = fechaCaducidad,
+                        fechaConsumo = fechaConsumo.ifBlank { null },
+                        lote = lote,
+                        estado = estado,
+                        proveedor = proveedor,
+                        tipoAlimento = tipoAlimento,
+                        ambiente = ambiente
+                    )
+
+                    coroutineScope.launch {
+                        db.alimentoDao().insertarAlimento(nuevoAlimento)
+                    }
+
+                    navController.navigate("inventory")
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {

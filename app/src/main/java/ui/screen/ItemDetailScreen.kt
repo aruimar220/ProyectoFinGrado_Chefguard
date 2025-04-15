@@ -2,31 +2,53 @@ package com.example.chefguard.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.chefguard.model.AlimentoEntity
+import com.example.chefguard.model.AppDatabase
+import kotlinx.coroutines.launch
 
 @Composable
-fun ItemDetailScreen(nombre: String) {
-    val alimento = alimentosEjemplo.find { it.nombre == nombre }
+fun ItemDetailsScreen(
+    navController: NavController,
+    id: Int
+) {
+    val context = LocalContext.current
+    val db = AppDatabase.getDatabase(context)
+    val coroutineScope = rememberCoroutineScope()
 
-    if (alimento == null) {
-        Text("Alimento no encontrado.")
-        return
+    var alimento by remember { mutableStateOf<AlimentoEntity?>(null) }
+
+    LaunchedEffect(id) {
+
+        alimento = db.alimentoDao().obtenerAlimentoPorId(id)
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Top
     ) {
-        Text("Detalle del Alimento", style = MaterialTheme.typography.headlineMedium)
-
+        Text("Detalles del Alimento", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(20.dp))
 
-        Text("Nombre: ${alimento.nombre}")
-        Text("Estado: ${alimento.estado}")
-        Text("Cantidad: ${alimento.cantidad}")
-        Text("Fecha de Caducidad: ${alimento.fechaCaducidad}")
+        if (alimento != null) {
+            Text(text = "Nombre: ${alimento!!.nombre}")
+            Text(text = "Cantidad: ${alimento!!.cantidad}")
+            Text(text = "Fecha de caducidad: ${alimento!!.fechaCaducidad}")
+            Text(text = "Fecha de consumo preferente: ${alimento!!.fechaConsumo ?: "No especificada"}")
+            Text(text = "Lote: ${alimento!!.lote}")
+            Text(text = "Estado: ${alimento!!.estado}")
+            Text(text = "Proveedor: ${alimento!!.proveedor}")
+            Text(text = "Tipo de alimento: ${alimento!!.tipoAlimento}")
+            Text(text = "Ambiente: ${alimento!!.ambiente}")
+        } else {
+            Text("Cargando detalles...")
+        }
     }
 }
