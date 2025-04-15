@@ -3,6 +3,8 @@ package com.example.chefguard.ui.screens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -20,10 +22,11 @@ fun InventoryScreen(navController: NavController) {
     val db = AppDatabase.getDatabase(context)
     val coroutineScope = rememberCoroutineScope()
 
+    var searchText by remember { mutableStateOf("") }
     var alimentos by remember { mutableStateOf<List<AlimentoEntity>>(emptyList()) }
 
     LaunchedEffect(Unit) {
-        // Cargar alimentos desde la base de datos
+        // Cargar todos los alimentos desde la base de datos
         alimentos = db.alimentoDao().obtenerTodosLosAlimentos()
     }
 
@@ -46,15 +49,33 @@ fun InventoryScreen(navController: NavController) {
                 .padding(innerPadding),
             verticalArrangement = Arrangement.Top
         ) {
-            Text(
-                "Inventario",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(24.dp)
+            // Campo de búsqueda
+            OutlinedTextField(
+                value = searchText,
+                onValueChange = { searchText = it },
+                label = { Text("Buscar alimento") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             )
 
+            Spacer(modifier = Modifier.height(8.dp))
+
             LazyColumn {
-                items(alimentos.size) { index ->
-                    val alimento = alimentos[index]
+                // Filtrar alimentos según el texto de búsqueda
+                val filteredAlimentos = if (searchText.isBlank()) {
+                    alimentos
+                } else {
+                    alimentos.filter { alimento ->
+                        alimento.nombre.contains(searchText, ignoreCase = true) ||
+                                alimento.proveedor.contains(searchText, ignoreCase = true) ||
+                                alimento.tipoAlimento.contains(searchText, ignoreCase = true)
+                    }
+                }
+
+                items(filteredAlimentos.size) { index ->
+                    val alimento = filteredAlimentos[index]
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
