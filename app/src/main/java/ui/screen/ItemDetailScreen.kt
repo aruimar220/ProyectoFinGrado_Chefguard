@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ItemDetailsScreen(
     navController: NavController,
-    id: Int
+    id: Int // Recibimos el ID del alimento seleccionado
 ) {
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
@@ -24,7 +24,7 @@ fun ItemDetailsScreen(
     var alimento by remember { mutableStateOf<AlimentoEntity?>(null) }
 
     LaunchedEffect(id) {
-
+        // Cargar el alimento específico desde la base de datos
         alimento = db.alimentoDao().obtenerAlimentoPorId(id)
     }
 
@@ -47,6 +47,21 @@ fun ItemDetailsScreen(
             Text(text = "Proveedor: ${alimento!!.proveedor}")
             Text(text = "Tipo de alimento: ${alimento!!.tipoAlimento}")
             Text(text = "Ambiente: ${alimento!!.ambiente}")
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        db.alimentoDao().eliminarAlimento(alimento!!.id)
+                    }
+                    navController.navigate("inventory") // Regresar al inventario
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("Eliminar alimento")
+            }
         } else {
             Text("Cargando detalles...")
         }

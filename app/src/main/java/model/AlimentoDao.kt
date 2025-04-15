@@ -12,4 +12,7 @@ interface AlimentoDao {
 
     @Query("SELECT * FROM alimentos WHERE id = :id")
     suspend fun obtenerAlimentoPorId(id: Int): AlimentoEntity?
+
+    @Query("DELETE FROM alimentos WHERE id = :id")
+    suspend fun eliminarAlimento(id: Int)
 }
