@@ -20,10 +20,14 @@ import kotlinx.coroutines.launch
 fun InventoryScreen(navController: NavController) {
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
-    val coroutineScope = rememberCoroutineScope()
 
     var searchText by remember { mutableStateOf("") }
     var alimentos by remember { mutableStateOf<List<AlimentoEntity>>(emptyList()) }
+
+    var filtroEstado by remember { mutableStateOf("Todos") }
+
+    // Estados disponibles
+    val estados = listOf("Todos", "Disponible", "Agotado", "Caducado")
 
     LaunchedEffect(Unit) {
         // Cargar todos los alimentos desde la base de datos
@@ -49,6 +53,7 @@ fun InventoryScreen(navController: NavController) {
                 .padding(innerPadding),
             verticalArrangement = Arrangement.Top
         ) {
+            // Barra de búsqueda
             OutlinedTextField(
                 value = searchText,
                 onValueChange = { searchText = it },
@@ -61,37 +66,96 @@ fun InventoryScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn {
-                val filteredAlimentos = if (searchText.isBlank()) {
-                    alimentos
-                } else {
-                    alimentos.filter { alimento ->
-                        alimento.nombre?.contains(searchText, ignoreCase = true) ?: false ||
-                                alimento.proveedor?.contains(searchText, ignoreCase = true) ?: false ||
-                                alimento.tipoAlimento?.contains(searchText, ignoreCase = true) ?: false
-                    }
-                }
+            // Filtro por Estado
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                DropdownMenuExample(
+                    items = estados,
+                    selectedValue = filtroEstado,
+                    onItemSelected = { nuevoEstado -> filtroEstado = nuevoEstado }
+                )
+            }
 
-                items(filteredAlimentos.size) { index ->
-                    val alimento = filteredAlimentos[index]
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp, horizontal = 16.dp)
-                            .clickable {
-                                navController.navigate("item_details/${alimento.id}")
-                            },
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val filteredAlimentos = alimentos.filter { alimento ->
+                (searchText.isBlank() ||
+                        alimento.nombre?.contains(searchText, ignoreCase = true) == true ||
+                        alimento.proveedor?.contains(searchText, ignoreCase = true) == true ||
+                        alimento.tipoAlimento?.contains(searchText, ignoreCase = true) == true) &&
+                        (filtroEstado == "Todos" || alimento.estado == filtroEstado)
+            }
+
+            if (filteredAlimentos.isEmpty()) {
+                // Mostrar mensaje si no hay alimentos encontrados
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
+                ) {
+                    Text(
+                        text = "No se han encontrado alimentos",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+            } else {
+                LazyColumn {
+                    items(filteredAlimentos.size) { index ->
+                        val alimento = filteredAlimentos[index]
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp, horizontal = 16.dp)
+                                .clickable {
+                                    navController.navigate("item_details/${alimento.id}")
+                                },
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
-                            Text(text = "Nombre: ${alimento.nombre}")
-                            Text(text = "Cantidad: ${alimento.cantidad}")
-                            Text(text = "Proveedor: ${alimento.proveedor}")
+                            Column(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                Text(text = "Nombre: ${alimento.nombre}")
+                                Text(text = "Cantidad: ${alimento.cantidad}")
+                                Text(text = "Proveedor: ${alimento.proveedor}")
+                                Text(text = "Estado: ${alimento.estado ?: "No especificado"}")
+                            }
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun DropdownMenuExample(
+    items: List<String>,
+    selectedValue: String,
+    onItemSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Button(onClick = { expanded = true }) {
+            Text(selectedValue)
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            items.forEach { item ->
+                DropdownMenuItem(
+                    text = { Text(item) },
+                    onClick = {
+                        onItemSelected(item)
+                        expanded = false
+                    }
+                )
             }
         }
     }
