@@ -63,7 +63,13 @@ class MainActivity : ComponentActivity() {
                                 val id = backStackEntry.arguments?.getInt("id") ?: 0
                                 ItemDetailsScreen(navController, id)
                             }
-
+                            composable(
+                                route = "edit_item/{id}",
+                                arguments = listOf(navArgument("id") { type = NavType.IntType })
+                            ) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getInt("id") ?: 0
+                                EditItemScreen(navController, id)
+                            }
                         }
                     }
                 }

@@ -15,4 +15,7 @@ interface AlimentoDao {
 
     @Query("DELETE FROM alimentos WHERE id = :id")
     suspend fun eliminarAlimento(id: Int)
+
+    @Update
+    suspend fun actualizarAlimento(alimento: AlimentoEntity)
 }
