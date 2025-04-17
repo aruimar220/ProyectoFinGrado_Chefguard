@@ -8,11 +8,11 @@ data class AlimentoEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val nombre: String,
     val cantidad: Int,
-    val fechaCaducidad: String,
+    val fechaCaducidad: String?,
     val fechaConsumo: String?,
-    val lote: String,
-    val estado: String,
-    val proveedor: String,
-    val tipoAlimento: String,
-    val ambiente: String
+    val lote: String?,
+    val estado: String?,
+    val proveedor: String?,
+    val tipoAlimento: String?,
+    val ambiente: String?
 )

@@ -49,7 +49,6 @@ fun InventoryScreen(navController: NavController) {
                 .padding(innerPadding),
             verticalArrangement = Arrangement.Top
         ) {
-            // Campo de búsqueda
             OutlinedTextField(
                 value = searchText,
                 onValueChange = { searchText = it },
@@ -63,14 +62,13 @@ fun InventoryScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn {
-                // Filtrar alimentos según el texto de búsqueda
                 val filteredAlimentos = if (searchText.isBlank()) {
                     alimentos
                 } else {
                     alimentos.filter { alimento ->
-                        alimento.nombre.contains(searchText, ignoreCase = true) ||
-                                alimento.proveedor.contains(searchText, ignoreCase = true) ||
-                                alimento.tipoAlimento.contains(searchText, ignoreCase = true)
+                        alimento.nombre?.contains(searchText, ignoreCase = true) ?: false ||
+                                alimento.proveedor?.contains(searchText, ignoreCase = true) ?: false ||
+                                alimento.tipoAlimento?.contains(searchText, ignoreCase = true) ?: false
                     }
                 }
 

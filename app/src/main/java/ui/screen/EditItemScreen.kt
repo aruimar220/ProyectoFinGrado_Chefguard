@@ -27,10 +27,12 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
     var tipoAlimento by remember { mutableStateOf("") }
     var ambiente by remember { mutableStateOf("") }
 
+    // Cargar el alimento usando el ViewModel
     LaunchedEffect(id) {
         viewModel.cargarAlimento(db, id)
     }
 
+    // Observar los datos del alimento desde el ViewModel
     val alimento = viewModel.alimento.collectAsState().value
     LaunchedEffect(alimento) {
         if (alimento != null) {
@@ -73,19 +75,82 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        OutlinedTextField(
+            value = fechaCaducidad,
+            onValueChange = { fechaCaducidad = it },
+            label = { Text("Fecha de caducidad") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = fechaConsumo,
+            onValueChange = { fechaConsumo = it },
+            label = { Text("Fecha de consumo preferente") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = lote,
+            onValueChange = { lote = it },
+            label = { Text("Lote") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = estado,
+            onValueChange = { estado = it },
+            label = { Text("Estado (Disponible / Agotado / Caducado)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = proveedor,
+            onValueChange = { proveedor = it },
+            label = { Text("Proveedor") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = tipoAlimento,
+            onValueChange = { tipoAlimento = it },
+            label = { Text("Tipo de alimento") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = ambiente,
+            onValueChange = { ambiente = it },
+            label = { Text("Ambiente") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         Button(
             onClick = {
                 val alimentoEditado = AlimentoEntity(
                     id = id,
                     nombre = nombre,
-                    cantidad = cantidad.toInt(),
-                    fechaCaducidad = fechaCaducidad,
+                    cantidad = cantidad.toIntOrNull() ?: 0,
+                    fechaCaducidad = fechaCaducidad.ifBlank { null },
                     fechaConsumo = fechaConsumo.ifBlank { null },
-                    lote = lote.ifBlank { "" },
-                    estado = estado.ifBlank { "" },
-                    proveedor = proveedor.ifBlank { "" },
-                    tipoAlimento = tipoAlimento.ifBlank { "" },
-                    ambiente = ambiente.ifBlank { "" }
+                    lote = lote.ifBlank { null },
+                    estado = estado.ifBlank { null },
+                    proveedor = proveedor.ifBlank { null },
+                    tipoAlimento = tipoAlimento.ifBlank { null },
+                    ambiente = ambiente.ifBlank { null }
                 )
                 viewModel.guardarAlimento(db, alimentoEditado)
                 navController.navigate("inventory")

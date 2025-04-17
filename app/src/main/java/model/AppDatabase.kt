@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [AlimentoEntity::class], version = 1)
+@Database(entities = [AlimentoEntity::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun alimentoDao(): AlimentoDao
 
@@ -19,7 +19,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "chefguard_db"
-                ).build()
+                ).fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }
