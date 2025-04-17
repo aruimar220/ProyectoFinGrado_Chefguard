@@ -76,6 +76,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
         Button(
             onClick = {
                 val alimentoEditado = AlimentoEntity(
+                    id = id,
                     nombre = nombre,
                     cantidad = cantidad.toInt(),
                     fechaCaducidad = fechaCaducidad,
