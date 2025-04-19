@@ -10,11 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.chefguard.model.AlimentoEntity
 import com.example.chefguard.model.AppDatabase
-import kotlinx.coroutines.launch
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun InventoryScreen(navController: NavController) {
@@ -53,6 +53,17 @@ fun InventoryScreen(navController: NavController) {
                 .padding(innerPadding),
             verticalArrangement = Arrangement.Top
         ) {
+            Text(
+                text = "Inventario",
+                style = MaterialTheme.typography.headlineLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, bottom = 8.dp)
+                    .align(Alignment.CenterHorizontally),
+                color = MaterialTheme.colorScheme.primary
+            )
+
             // Barra de búsqueda
             OutlinedTextField(
                 value = searchText,
@@ -64,7 +75,6 @@ fun InventoryScreen(navController: NavController) {
                     .padding(16.dp)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
 
             // Filtro por Estado
             Row(
