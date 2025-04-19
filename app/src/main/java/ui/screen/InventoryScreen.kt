@@ -106,6 +106,15 @@ fun InventoryScreen(navController: NavController) {
                 LazyColumn {
                     items(filteredAlimentos.size) { index ->
                         val alimento = filteredAlimentos[index]
+
+                        // Determinar el color de la tarjeta según el estado
+                        val colorEstado = when (alimento.estado) {
+                            "Disponible" -> MaterialTheme.colorScheme.primaryContainer
+                            "Agotado" -> MaterialTheme.colorScheme.errorContainer
+                            "Caducado" -> MaterialTheme.colorScheme.surfaceVariant
+                            else -> MaterialTheme.colorScheme.surface
+                        }
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -113,7 +122,7 @@ fun InventoryScreen(navController: NavController) {
                                 .clickable {
                                     navController.navigate("item_details/${alimento.id}")
                                 },
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            colors = CardDefaults.cardColors(containerColor = colorEstado)
                         ) {
                             Column(
                                 modifier = Modifier.padding(16.dp)
