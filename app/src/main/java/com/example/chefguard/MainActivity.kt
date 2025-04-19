@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                             composable("home") { HomeScreen(navController) }
                             composable("recover") { RecoverPasswordScreen(navController) }
                             composable("add_item") { AddItemsScreen(navController) }
-                            composable("alerts") { AlertsScreen() }
+                            composable("alerts") { AlertScreen(navController) }
                             composable("profile") { ProfileScreen() }
                             composable("add_items") { AddItemsScreen(navController) }
                             composable("inventory") { InventoryScreen(navController) }
