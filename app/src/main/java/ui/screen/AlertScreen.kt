@@ -27,7 +27,6 @@ fun AlertScreen(navController: NavController) {
     val filtros = listOf("Todos", "Caducados", "Por caducar pronto")
 
     LaunchedEffect(Unit) {
-        // Cargar todos los alimentos desde la base de datos
         alimentos = db.alimentoDao().obtenerTodosLosAlimentos()
     }
 
@@ -79,21 +78,31 @@ fun AlertScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             val filteredAlimentos = alimentos.filter { alimento ->
-                val fechaCaducidad = LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
-                val hoy = LocalDate.now()
+                try {
+                    val fechaCaducidad = LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
+                    val hoy = LocalDate.now()
 
-                when (filtroAlerta) {
-                    "Todos" -> true
-                    "Caducados" -> fechaCaducidad.isBefore(hoy)
-                    "Por caducar pronto" -> fechaCaducidad.isAfter(hoy) && fechaCaducidad.isBefore(hoy.plusDays(5))
-                    else -> false
+                    when (filtroAlerta) {
+                        "Todos" -> true
+                        "Caducados" -> fechaCaducidad.isBefore(hoy)
+                        "Por caducar pronto" -> fechaCaducidad.isAfter(hoy) && fechaCaducidad.isBefore(hoy.plusDays(5))
+                        else -> false
+                    }
+                } catch (e: Exception) {
+                    false
+                }
+            }.sortedBy {
+                try {
+                    LocalDate.parse(it.fechaCaducidad, DateTimeFormatter.ISO_DATE)
+                } catch (e: Exception) {
+                    LocalDate.MAX
                 }
             }
 
             if (filteredAlimentos.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = androidx.compose.ui.Alignment.Center
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "No hay alertas pendientes",
@@ -106,6 +115,19 @@ fun AlertScreen(navController: NavController) {
                     items(filteredAlimentos.size) { index ->
                         val alimento = filteredAlimentos[index]
 
+                        val hoy = LocalDate.now()
+                        val color = runCatching {
+                            val fecha = LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
+                            when {
+                                fecha.isBefore(hoy) -> MaterialTheme.colorScheme.errorContainer
+                                fecha.isBefore(hoy.plusDays(5)) -> MaterialTheme.colorScheme.tertiaryContainer
+                                else -> MaterialTheme.colorScheme.surfaceVariant
+                            }
+                        }.getOrElse {
+                            MaterialTheme.colorScheme.surface
+                        }
+
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -113,12 +135,16 @@ fun AlertScreen(navController: NavController) {
                                 .clickable {
                                     navController.navigate("item_details/${alimento.id}")
                                 },
+                            colors = CardDefaults.cardColors(containerColor = color),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
                             Column(
                                 modifier = Modifier.padding(16.dp)
                             ) {
                                 Text(text = "Nombre: ${alimento.nombre}")
+                                Text(text = "Cantidad: ${alimento.cantidad}")
+                                Text(text = "Proveedor: ${alimento.proveedor}")
+                                Text(text = "Estado: ${alimento.estado ?: "No especificado"}")
                                 Text(text = "Fecha de caducidad: ${alimento.fechaCaducidad}")
                             }
                         }
