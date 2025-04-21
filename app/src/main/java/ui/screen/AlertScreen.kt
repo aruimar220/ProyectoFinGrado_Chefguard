@@ -24,7 +24,7 @@ fun AlertScreen(navController: NavController) {
     var alimentos by remember { mutableStateOf<List<AlimentoEntity>>(emptyList()) }
     var filtroAlerta by remember { mutableStateOf("Todos") }
 
-    val filtros = listOf("Todos", "Caducados", "Por caducar pronto")
+    val filtros = listOf("Todos", "Caducados", "Por caducar pronto", "Disponibles")
 
     LaunchedEffect(Unit) {
         alimentos = db.alimentoDao().obtenerTodosLosAlimentos()
@@ -85,9 +85,11 @@ fun AlertScreen(navController: NavController) {
                     when (filtroAlerta) {
                         "Todos" -> true
                         "Caducados" -> fechaCaducidad.isBefore(hoy)
-                        "Por caducar pronto" -> fechaCaducidad.isAfter(hoy) && fechaCaducidad.isBefore(hoy.plusDays(5))
+                        "Por caducar pronto" -> fechaCaducidad.isAfter(hoy) && fechaCaducidad.isBefore(hoy.plusDays(2))
+                        "Disponibles" -> fechaCaducidad.isAfter(hoy.plusDays(5))
                         else -> false
                     }
+
                 } catch (e: Exception) {
                     false
                 }
@@ -116,17 +118,23 @@ fun AlertScreen(navController: NavController) {
                         val alimento = filteredAlimentos[index]
 
                         val hoy = LocalDate.now()
-                        val color = runCatching {
-                            val fecha = LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
-                            when {
-                                fecha.isBefore(hoy) -> MaterialTheme.colorScheme.errorContainer
-                                fecha.isBefore(hoy.plusDays(5)) -> MaterialTheme.colorScheme.tertiaryContainer
-                                else -> MaterialTheme.colorScheme.surfaceVariant
-                            }
-                        }.getOrElse {
-                            MaterialTheme.colorScheme.surface
+                        val fechaCaducidad = runCatching {
+                            LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
+                        }.getOrNull()
+
+                        val color = when {
+                            fechaCaducidad == null -> MaterialTheme.colorScheme.surface
+                            fechaCaducidad.isBefore(hoy) -> MaterialTheme.colorScheme.errorContainer
+                            fechaCaducidad.isBefore(hoy.plusDays(5)) -> MaterialTheme.colorScheme.tertiaryContainer
+                            else -> MaterialTheme.colorScheme.surfaceVariant
                         }
 
+                        val diasTexto = when {
+                            fechaCaducidad == null -> "Fecha inválida"
+                            fechaCaducidad.isBefore(hoy) -> "⚠️ Caducado hace ${java.time.temporal.ChronoUnit.DAYS.between(fechaCaducidad, hoy)} días"
+                            fechaCaducidad.isEqual(hoy) -> "⚠️ Caduca hoy"
+                            else -> "⏳ Caduca en ${java.time.temporal.ChronoUnit.DAYS.between(hoy, fechaCaducidad)} días"
+                        }
 
                         Card(
                             modifier = Modifier
@@ -138,14 +146,17 @@ fun AlertScreen(navController: NavController) {
                             colors = CardDefaults.cardColors(containerColor = color),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
-                                Text(text = "Nombre: ${alimento.nombre}")
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(text = "Nombre: ${alimento.nombre}", style = MaterialTheme.typography.titleMedium)
                                 Text(text = "Cantidad: ${alimento.cantidad}")
                                 Text(text = "Proveedor: ${alimento.proveedor}")
                                 Text(text = "Estado: ${alimento.estado ?: "No especificado"}")
                                 Text(text = "Fecha de caducidad: ${alimento.fechaCaducidad}")
+                                Text(
+                                    text = diasTexto,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
