@@ -5,9 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [AlimentoEntity::class], version = 2)
+@Database(entities = [AlimentoEntity::class, UsuarioEntity::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun alimentoDao(): AlimentoDao
+    abstract fun usuarioDao(): UsuarioDao
 
     companion object {
         @Volatile
@@ -18,9 +19,8 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "chefguard_db"
-                ).fallbackToDestructiveMigration()
-                    .build()
+                    "chefguard_database"
+                ).build()
                 INSTANCE = instance
                 instance
             }

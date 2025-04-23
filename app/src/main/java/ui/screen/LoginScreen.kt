@@ -5,15 +5,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.chefguard.model.AppDatabase
+import com.example.chefguard.model.UsuarioEntity
+import com.example.chefguard.utils.PreferencesManager
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(navController: NavController) {
+    val context = LocalContext.current
+    val db = AppDatabase.getDatabase(context)
+
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf(false) } // Para mostrar errores de validación
+
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -29,7 +40,7 @@ fun LoginScreen(navController: NavController) {
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Nombre de usuario") },
+            label = { Text("Correo Eléctronico") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -56,12 +67,33 @@ fun LoginScreen(navController: NavController) {
             Text("Mantener sesión iniciada")
         }
 
+        if (error) { // Mensaje de error si las credenciales son incorrectas
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Credenciales incorrectas",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
         Spacer(modifier = Modifier.height(10.dp))
 
         Button(
             onClick = {
-                navController.navigate("home") {
-                    popUpTo("login") { inclusive = true }
+                scope.launch {
+                    // Validar credenciales en la base de datos
+                    val usuario = db.usuarioDao().validarUsuario(username, password)
+                    if (usuario != null) {
+                        // Guardar estado de login si "recordar" está activado
+                        if (rememberMe) {
+                            PreferencesManager.saveLoginState(context, true)
+                        }
+                        navController.navigate("home") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    } else {
+                        error = true // Mostrar mensaje de error
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -76,7 +108,6 @@ fun LoginScreen(navController: NavController) {
         }) {
             Text("¿Olvidaste tu contraseña?")
         }
-
 
         Spacer(modifier = Modifier.height(4.dp))
 
