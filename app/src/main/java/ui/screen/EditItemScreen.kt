@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.chefguard.model.AlimentoEntity
 import com.example.chefguard.model.AppDatabase
+import com.example.chefguard.utils.PreferencesManager
 import com.example.chefguard.viewmodel.AlimentoViewModel
 
 @Composable
@@ -26,13 +27,12 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
     var proveedor by remember { mutableStateOf("") }
     var tipoAlimento by remember { mutableStateOf("") }
     var ambiente by remember { mutableStateOf("") }
+    val userId = PreferencesManager.getUserId(context)
 
-    // Cargar el alimento usando el ViewModel
     LaunchedEffect(id) {
         viewModel.cargarAlimento(db, id)
     }
 
-    // Observar los datos del alimento desde el ViewModel
     val alimento = viewModel.alimento.collectAsState().value
     LaunchedEffect(alimento) {
         if (alimento != null) {
@@ -142,6 +142,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
             onClick = {
                 val alimentoEditado = AlimentoEntity(
                     id = id,
+                    ID_usuario = userId,
                     nombre = nombre,
                     cantidad = cantidad.toIntOrNull() ?: 0,
                     fechaCaducidad = fechaCaducidad.ifBlank { null },

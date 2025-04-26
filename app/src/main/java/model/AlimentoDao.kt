@@ -18,4 +18,7 @@ interface AlimentoDao {
 
     @Update
     suspend fun actualizarAlimento(alimento: AlimentoEntity)
+
+    @Query("SELECT * FROM alimentos WHERE ID_usuario = :userId")
+    suspend fun obtenerAlimentosPorUsuario(userId: Int): List<AlimentoEntity>
 }

@@ -15,23 +15,34 @@ import com.example.chefguard.model.AlimentoEntity
 import com.example.chefguard.model.AppDatabase
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
+import com.example.chefguard.utils.PreferencesManager
+import kotlinx.coroutines.launch
 
 @Composable
 fun InventoryScreen(navController: NavController) {
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
 
+    val userId = PreferencesManager.getUserId(context)
+    if (userId == -1) {
+        LaunchedEffect(Unit) {
+            navController.navigate("login") {
+                popUpTo("inventory") { inclusive = true }
+            }
+        }
+        return
+    }
+
+    val scope = rememberCoroutineScope()
+
     var searchText by remember { mutableStateOf("") }
     var alimentos by remember { mutableStateOf<List<AlimentoEntity>>(emptyList()) }
 
     var filtroEstado by remember { mutableStateOf("Todos") }
-
-    // Estados disponibles
     val estados = listOf("Todos", "Disponible", "Agotado", "Caducado")
 
-    LaunchedEffect(Unit) {
-        // Cargar todos los alimentos desde la base de datos
-        alimentos = db.alimentoDao().obtenerTodosLosAlimentos()
+    LaunchedEffect(userId) {
+        alimentos = db.alimentoDao().obtenerAlimentosPorUsuario(userId)
     }
 
     Scaffold(
@@ -64,7 +75,6 @@ fun InventoryScreen(navController: NavController) {
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // Barra de búsqueda
             OutlinedTextField(
                 value = searchText,
                 onValueChange = { searchText = it },
@@ -75,8 +85,6 @@ fun InventoryScreen(navController: NavController) {
                     .padding(16.dp)
             )
 
-
-            // Filtro por Estado
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,10 +109,9 @@ fun InventoryScreen(navController: NavController) {
             }
 
             if (filteredAlimentos.isEmpty()) {
-                // Mostrar mensaje si no hay alimentos encontrados
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = androidx.compose.ui.Alignment.Center
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "No se han encontrado alimentos",
@@ -117,7 +124,6 @@ fun InventoryScreen(navController: NavController) {
                     items(filteredAlimentos.size) { index ->
                         val alimento = filteredAlimentos[index]
 
-                        // Determinar el color de la tarjeta según el estado
                         val colorEstado = when (alimento.estado) {
                             "Disponible" -> MaterialTheme.colorScheme.primaryContainer
                             "Agotado" -> MaterialTheme.colorScheme.errorContainer

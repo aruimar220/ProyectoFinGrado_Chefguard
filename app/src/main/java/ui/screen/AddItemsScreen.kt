@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chefguard.model.AlimentoEntity
 import com.example.chefguard.model.AppDatabase
+import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
 
 @Composable
@@ -26,7 +27,7 @@ fun AddItemsScreen(navController: NavController) {
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
     val coroutineScope = rememberCoroutineScope()
-
+    val userId = PreferencesManager.getUserId(context)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -121,6 +122,7 @@ fun AddItemsScreen(navController: NavController) {
             onClick = {
                 if (nombre.isNotBlank() && cantidad.toIntOrNull() != null) {
                     val nuevoAlimento = AlimentoEntity(
+                        ID_usuario = userId,
                         nombre = nombre,
                         cantidad = cantidad.toInt(),
                         fechaCaducidad = fechaCaducidad,
