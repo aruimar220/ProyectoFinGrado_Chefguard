@@ -4,17 +4,40 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.chefguard.model.AppDatabase
+import com.example.chefguard.utils.PreferencesManager
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    val context = LocalContext.current
+    val db = AppDatabase.getDatabase(context)
+
+    val userId = PreferencesManager.getUserId(context)
+    if (userId == -1) {
+        LaunchedEffect(Unit) {
+            navController.navigate("login") {
+                popUpTo("home") { inclusive = true }
+            }
+        }
+        return
+    }
+
+    var nombreUsuario by remember { mutableStateOf("Invitado") }
+    LaunchedEffect(Unit) {
+        val usuario = db.usuarioDao().obtenerUsuarioPorId(userId)
+        nombreUsuario = usuario?.nombre ?: "Invitado"
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -27,6 +50,15 @@ fun HomeScreen(navController: NavController) {
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = "Hola, $nombreUsuario",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(20.dp))

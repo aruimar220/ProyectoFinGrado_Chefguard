@@ -12,4 +12,7 @@ interface UsuarioDao {
 
     @Query("SELECT * FROM usuarios WHERE correo = :correo AND contrasena = :contrasena")
     suspend fun validarUsuario(correo: String, contrasena: String): UsuarioEntity?
+
+    @Query("SELECT * FROM usuarios WHERE id = :id")
+    suspend fun obtenerUsuarioPorId(id: Int): UsuarioEntity?
 }

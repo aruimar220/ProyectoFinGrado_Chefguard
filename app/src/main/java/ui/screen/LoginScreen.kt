@@ -22,7 +22,7 @@ fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf(false) } // Para mostrar errores de validación
+    var error by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
 
@@ -81,18 +81,15 @@ fun LoginScreen(navController: NavController) {
         Button(
             onClick = {
                 scope.launch {
-                    // Validar credenciales en la base de datos
                     val usuario = db.usuarioDao().validarUsuario(username, password)
                     if (usuario != null) {
-                        // Guardar estado de login si "recordar" está activado
-                        if (rememberMe) {
-                            PreferencesManager.saveLoginState(context, true)
-                        }
+                        PreferencesManager.saveUserId(context, usuario.id)
+
                         navController.navigate("home") {
                             popUpTo("login") { inclusive = true }
                         }
                     } else {
-                        error = true // Mostrar mensaje de error
+                        error = true
                     }
                 }
             },
