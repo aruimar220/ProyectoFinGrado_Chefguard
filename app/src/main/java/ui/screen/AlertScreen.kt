@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chefguard.model.AlimentoEntity
 import com.example.chefguard.model.AppDatabase
+import com.example.chefguard.utils.PreferencesManager
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -21,13 +22,23 @@ fun AlertScreen(navController: NavController) {
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
 
+    val userId = PreferencesManager.getUserId(context)
+    if (userId == -1) {
+        LaunchedEffect(Unit) {
+            navController.navigate("login") {
+                popUpTo("alerts") { inclusive = true }
+            }
+        }
+        return
+    }
+
     var alimentos by remember { mutableStateOf<List<AlimentoEntity>>(emptyList()) }
     var filtroAlerta by remember { mutableStateOf("Todos") }
 
     val filtros = listOf("Todos", "Caducados", "Por caducar pronto", "Disponibles")
 
     LaunchedEffect(Unit) {
-        alimentos = db.alimentoDao().obtenerTodosLosAlimentos()
+        alimentos = db.alimentoDao().obtenerAlimentosPorUsuario(userId)
     }
 
     Scaffold(
