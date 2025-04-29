@@ -1,5 +1,6 @@
 package com.example.chefguard
 
+import EditProfileScreen
 import ProfileScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -85,6 +86,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
+                            composable("edit_profile") { EditProfileScreen(navController) }
                         }
                     }
                 }

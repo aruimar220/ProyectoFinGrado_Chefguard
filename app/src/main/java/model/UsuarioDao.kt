@@ -15,4 +15,7 @@ interface UsuarioDao {
 
     @Query("SELECT * FROM usuarios WHERE id = :id")
     suspend fun obtenerUsuarioPorId(id: Int): UsuarioEntity?
+
+    @Update
+    suspend fun actualizarUsuario(usuario: UsuarioEntity)
 }
