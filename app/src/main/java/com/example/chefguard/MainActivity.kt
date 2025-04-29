@@ -1,5 +1,6 @@
 package com.example.chefguard
 
+import ProfileScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -55,7 +56,7 @@ class MainActivity : ComponentActivity() {
                             composable("recover") { RecoverPasswordScreen(navController) }
                             composable("add_item") { AddItemsScreen(navController) }
                             composable("alerts") { AlertScreen(navController) }
-                            composable("profile") { ProfileScreen() }
+                            composable("profile") { ProfileScreen(navController) }
                             composable("add_items") { AddItemsScreen(navController) }
                             composable("inventory") { InventoryScreen(navController) }
                             composable(

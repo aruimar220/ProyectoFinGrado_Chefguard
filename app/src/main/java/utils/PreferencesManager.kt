@@ -15,6 +15,7 @@ object PreferencesManager {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false)
     }
+
     fun saveUserId(context: Context, userId: Int) {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         sharedPreferences.edit().putInt(KEY_USER_ID, userId).apply()
@@ -22,7 +23,7 @@ object PreferencesManager {
 
     fun getUserId(context: Context): Int {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return sharedPreferences.getInt(KEY_USER_ID, -1) // Retorna -1 si no hay usuario logeado
+        return sharedPreferences.getInt(KEY_USER_ID, -1)
     }
 
     fun clearUserId(context: Context) {
