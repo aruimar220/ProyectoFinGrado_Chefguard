@@ -18,4 +18,7 @@ interface UsuarioDao {
 
     @Update
     suspend fun actualizarUsuario(usuario: UsuarioEntity)
+
+    @Query("DELETE FROM usuarios WHERE id = :userId")
+    suspend fun eliminarUsuarioPorId(userId: Int)
 }

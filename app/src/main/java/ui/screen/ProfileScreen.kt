@@ -7,17 +7,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.chefguard.model.AppDatabase
 import com.example.chefguard.model.UsuarioEntity
 import com.example.chefguard.utils.PreferencesManager
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(navController: NavController) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val db = AppDatabase.getDatabase(context)
 
-    var mostrarDialogoCerrarSesion by remember { mutableStateOf(false) }
+    val viewModel: ProfileViewModel = viewModel(
+        factory = ProfileViewModel.provideFactory(db)
+    )
+
+    var mostrarDialogoBorrarCuenta by remember { mutableStateOf(false) }
 
     val userId = PreferencesManager.getUserId(context)
     if (userId == -1) {
@@ -68,11 +75,9 @@ fun ProfileScreen(navController: NavController) {
 
         Button(
             onClick = {
-                navController.navigate("edit_profile")
+                navController.navigate("edit_profile") // Navegar a la pantalla de edición
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Editar Perfil")
         }
@@ -80,35 +85,52 @@ fun ProfileScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedButton(
-            onClick = { mostrarDialogoCerrarSesion = true },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+            onClick = { mostrarDialogoBorrarCuenta = true },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
         ) {
-            Text(text = "Cerrar Sesión", color = MaterialTheme.colorScheme.error)
+            Text(text = "Borrar Cuenta")
         }
 
-        if (mostrarDialogoCerrarSesion) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedButton(
+            onClick = {
+                PreferencesManager.saveUserId(context, -1)
+                navController.navigate("login") {
+                    popUpTo("profile") { inclusive = true }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+        ) {
+            Text(text = "Cerrar Sesión")
+        }
+
+        if (mostrarDialogoBorrarCuenta) {
             AlertDialog(
-                onDismissRequest = { mostrarDialogoCerrarSesion = false },
-                title = { Text(text = "Cerrar Sesión") },
-                text = { Text(text = "¿Estás seguro de que deseas cerrar sesión?") },
+                onDismissRequest = { mostrarDialogoBorrarCuenta = false },
+                title = { Text(text = "Borrar Cuenta") },
+                text = { Text(text = "¿Estás seguro de que deseas borrar tu cuenta? Esta acción no se puede deshacer.") },
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            PreferencesManager.saveUserId(context, -1)
-                            navController.navigate("login") {
-                                popUpTo("profile") { inclusive = true }
+                            scope.launch {
+                                db.usuarioDao().eliminarUsuarioPorId(userId)
+                                PreferencesManager.saveUserId(context, -1)
+                                navController.navigate("login") {
+                                    popUpTo("profile") { inclusive = true }
+                                }
                             }
-                            mostrarDialogoCerrarSesion = false
+                            mostrarDialogoBorrarCuenta = false
                         }
                     ) {
-                        Text(text = "Aceptar")
+                        Text(text = "Aceptar", color = MaterialTheme.colorScheme.error)
                     }
                 },
                 dismissButton = {
                     TextButton(
-                        onClick = { mostrarDialogoCerrarSesion = false }
+                        onClick = { mostrarDialogoBorrarCuenta = false }
                     ) {
                         Text(text = "Cancelar")
                     }
