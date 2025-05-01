@@ -34,6 +34,17 @@ fun LoginScreen(navController: NavController) {
         return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
 
+    // Verificar si hay una sesión guardada al cargar la pantalla
+    LaunchedEffect(Unit) {
+        val savedUserId = PreferencesManager.getUserId(context)
+        val savedRememberMe = PreferencesManager.getRememberMe(context)
+        if (savedUserId != -1 && savedRememberMe) {
+            navController.navigate("home") {
+                popUpTo("login") { inclusive = true }
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -62,6 +73,21 @@ fun LoginScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(10.dp))
+
+        var rememberMe by remember { mutableStateOf(false) } // Estado para "Recordar sesión"
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Checkbox(
+                checked = rememberMe,
+                onCheckedChange = { rememberMe = it }
+            )
+            Text("Mantener sesión iniciada")
+        }
+
         if (error.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -84,7 +110,9 @@ fun LoginScreen(navController: NavController) {
                         val encryptedPassword = encryptPassword(password)
                         val usuario = db.usuarioDao().validarUsuario(email, encryptedPassword)
                         if (usuario != null) {
+                            // Guardar el ID del usuario y la preferencia de "Recordar sesión"
                             PreferencesManager.saveUserId(context, usuario.id)
+                            PreferencesManager.saveRememberMe(context, rememberMe)
                             navController.navigate("home") {
                                 popUpTo("login") { inclusive = true }
                             }
