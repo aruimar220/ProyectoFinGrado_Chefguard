@@ -13,18 +13,26 @@ import com.example.chefguard.model.AppDatabase
 import com.example.chefguard.model.UsuarioEntity
 import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
+import java.security.MessageDigest
 
 @Composable
 fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
 
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var rememberMe by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
+
+    // Función para cifrar la contraseña (SHA-256)
+    fun encryptPassword(password: String): String {
+        val bytes = password.toByteArray()
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(bytes)
+        return digest.fold("") { str, it -> str + "%02x".format(it) }
+    }
 
     Column(
         modifier = Modifier
@@ -38,9 +46,9 @@ fun LoginScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(20.dp))
 
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Correo Eléctronico") },
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Correo Electrónico") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -54,23 +62,10 @@ fun LoginScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Checkbox(
-                checked = rememberMe,
-                onCheckedChange = { rememberMe = it }
-            )
-            Text("Mantener sesión iniciada")
-        }
-
-        if (error) { // Mensaje de error si las credenciales son incorrectas
+        if (error.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Credenciales incorrectas",
+                text = error,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -80,19 +75,26 @@ fun LoginScreen(navController: NavController) {
 
         Button(
             onClick = {
-                scope.launch {
-                    val usuario = db.usuarioDao().validarUsuario(username, password)
-                    if (usuario != null) {
-                        PreferencesManager.saveUserId(context, usuario.id)
-
-                        navController.navigate("home") {
-                            popUpTo("login") { inclusive = true }
+                if (email.isEmpty()) {
+                    error = "El correo electrónico no puede estar vacío"
+                } else if (password.isEmpty()) {
+                    error = "La contraseña no puede estar vacía"
+                } else {
+                    scope.launch {
+                        val encryptedPassword = encryptPassword(password)
+                        val usuario = db.usuarioDao().validarUsuario(email, encryptedPassword)
+                        if (usuario != null) {
+                            PreferencesManager.saveUserId(context, usuario.id)
+                            navController.navigate("home") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        } else {
+                            error = "Credenciales incorrectas"
                         }
-                    } else {
-                        error = true
                     }
                 }
             },
+            enabled = email.isNotEmpty() && password.isNotEmpty(),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Entrar")

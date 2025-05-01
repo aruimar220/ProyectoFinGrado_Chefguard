@@ -12,6 +12,7 @@ import androidx.navigation.NavController
 import com.example.chefguard.model.AppDatabase
 import com.example.chefguard.model.UsuarioEntity
 import kotlinx.coroutines.launch
+import java.util.regex.Pattern
 
 @Composable
 fun RegisterScreen(navController: NavController) {
@@ -25,6 +26,26 @@ fun RegisterScreen(navController: NavController) {
     var error by remember { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
+
+    fun isValidEmail(email: String): Boolean {
+        val emailPattern = Pattern.compile(
+            "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" +
+                    "\\@" +
+                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+                    "(" +
+                    "\\." +
+                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
+                    ")+"
+        )
+        return emailPattern.matcher(email).matches()
+    }
+
+    fun encryptPassword(password: String): String {
+        val bytes = password.toByteArray()
+        val md = java.security.MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(bytes)
+        return digest.fold("") { str, it -> str + "%02x".format(it) }
+    }
 
     Column(
         modifier = Modifier
@@ -40,7 +61,7 @@ fun RegisterScreen(navController: NavController) {
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Nombre Completo") }, //Esto se guardará como nombre completo para mas adelante pero recibe la etiqueta de username
+            label = { Text("Nombre Completo") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -88,14 +109,19 @@ fun RegisterScreen(navController: NavController) {
             onClick = {
                 if (password != confirmPassword) {
                     error = "Las contraseñas no coinciden"
+                } else if (!isValidEmail(email)) {
+                    error = "El correo electrónico no es válido"
+                } else if (password.length < 8) {
+                    error = "La contraseña debe tener al menos 8 caracteres"
                 } else {
                     scope.launch {
                         val existingUser = db.usuarioDao().obtenerUsuarioPorCorreo(email)
                         if (existingUser == null) {
+                            val encryptedPassword = encryptPassword(password)
                             val newUser = UsuarioEntity(
                                 nombre = username,
                                 correo = email,
-                                contrasena = password
+                                contrasena = encryptedPassword
                             )
                             db.usuarioDao().insertarUsuario(newUser)
                             navController.navigate("login")
