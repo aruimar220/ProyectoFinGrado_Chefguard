@@ -21,4 +21,7 @@ interface UsuarioDao {
 
     @Query("DELETE FROM usuarios WHERE id = :userId")
     suspend fun eliminarUsuarioPorId(userId: Int)
+
+    @Query("UPDATE usuarios SET contrasena = :nuevaContrasena WHERE id = :userId")
+    suspend fun actualizarContraseña(userId: Int, nuevaContrasena: String)
 }

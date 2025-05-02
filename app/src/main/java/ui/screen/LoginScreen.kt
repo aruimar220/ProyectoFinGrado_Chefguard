@@ -26,7 +26,6 @@ fun LoginScreen(navController: NavController) {
 
     val scope = rememberCoroutineScope()
 
-    // Función para cifrar la contraseña (SHA-256)
     fun encryptPassword(password: String): String {
         val bytes = password.toByteArray()
         val md = MessageDigest.getInstance("SHA-256")
@@ -34,7 +33,6 @@ fun LoginScreen(navController: NavController) {
         return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
 
-    // Verificar si hay una sesión guardada al cargar la pantalla
     LaunchedEffect(Unit) {
         val savedUserId = PreferencesManager.getUserId(context)
         val savedRememberMe = PreferencesManager.getRememberMe(context)
@@ -75,7 +73,7 @@ fun LoginScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        var rememberMe by remember { mutableStateOf(false) } // Estado para "Recordar sesión"
+        var rememberMe by remember { mutableStateOf(false) } 
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -110,7 +108,6 @@ fun LoginScreen(navController: NavController) {
                         val encryptedPassword = encryptPassword(password)
                         val usuario = db.usuarioDao().validarUsuario(email, encryptedPassword)
                         if (usuario != null) {
-                            // Guardar el ID del usuario y la preferencia de "Recordar sesión"
                             PreferencesManager.saveUserId(context, usuario.id)
                             PreferencesManager.saveRememberMe(context, rememberMe)
                             navController.navigate("home") {
