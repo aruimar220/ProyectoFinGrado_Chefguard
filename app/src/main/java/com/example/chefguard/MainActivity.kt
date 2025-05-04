@@ -1,5 +1,6 @@
 package com.example.chefguard
 
+import AlertNotificationWorker
 import EditProfileScreen
 import ProfileScreen
 import android.os.Bundle
@@ -22,10 +23,22 @@ import com.example.chefguard.ui.components.BottomNavBar
 import com.example.chefguard.ui.screens.*
 import com.example.chefguard.ui.theme.ChefguardTheme
 import com.example.chefguard.utils.PreferencesManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.ExistingPeriodicWorkPolicy
+import java.util.concurrent.TimeUnit
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        createNotificationChannel(this)
+
         setContent {
             ChefguardTheme {
                 val navController = rememberNavController()
@@ -93,4 +106,28 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+fun createNotificationChannel(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val name = "Alertas"
+        val descriptionText = "Notificaciones de alimentos por caducar"
+        val importance = NotificationManager.IMPORTANCE_HIGH
+        val channel = NotificationChannel("alert_channel", name, importance).apply {
+            description = descriptionText
+        }
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+}
+
+fun scheduleDailyNotification(context: Context) {
+    val workRequest = PeriodicWorkRequestBuilder<AlertNotificationWorker>(24, TimeUnit.HOURS)
+        .build()
+
+    WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+        "alert_notification_work",
+        ExistingPeriodicWorkPolicy.KEEP,
+        workRequest
+    )
 }

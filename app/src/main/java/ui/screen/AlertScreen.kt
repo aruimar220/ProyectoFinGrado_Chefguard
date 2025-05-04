@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chefguard.model.AlimentoEntity
 import com.example.chefguard.model.AppDatabase
+import com.example.chefguard.scheduleDailyNotification
 import com.example.chefguard.utils.PreferencesManager
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -39,6 +40,37 @@ fun AlertScreen(navController: NavController) {
 
     LaunchedEffect(Unit) {
         alimentos = db.alimentoDao().obtenerAlimentosPorUsuario(userId)
+    }
+
+    val filteredAlimentos = alimentos.filter { alimento ->
+        try {
+            val fechaCaducidad = LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
+            val hoy = LocalDate.now()
+
+            when (filtroAlerta) {
+                "Todos" -> true
+                "Caducados" -> fechaCaducidad.isBefore(hoy)
+                "Por caducar pronto" -> fechaCaducidad.isAfter(hoy) && fechaCaducidad.isBefore(hoy.plusDays(2))
+                "Disponibles" -> fechaCaducidad.isAfter(hoy.plusDays(5))
+                else -> false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }.sortedBy {
+        try {
+            LocalDate.parse(it.fechaCaducidad, DateTimeFormatter.ISO_DATE)
+        } catch (e: Exception) {
+            LocalDate.MAX
+        }
+    }
+
+    if (filteredAlimentos.any {
+            val fechaCaducidad = LocalDate.parse(it.fechaCaducidad, DateTimeFormatter.ISO_DATE)
+            val hoy = LocalDate.now()
+            fechaCaducidad.isAfter(hoy) && fechaCaducidad.isBefore(hoy.plusDays(2))
+        }) {
+        scheduleDailyNotification(context)
     }
 
     Scaffold(
@@ -87,30 +119,6 @@ fun AlertScreen(navController: NavController) {
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-
-            val filteredAlimentos = alimentos.filter { alimento ->
-                try {
-                    val fechaCaducidad = LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
-                    val hoy = LocalDate.now()
-
-                    when (filtroAlerta) {
-                        "Todos" -> true
-                        "Caducados" -> fechaCaducidad.isBefore(hoy)
-                        "Por caducar pronto" -> fechaCaducidad.isAfter(hoy) && fechaCaducidad.isBefore(hoy.plusDays(2))
-                        "Disponibles" -> fechaCaducidad.isAfter(hoy.plusDays(5))
-                        else -> false
-                    }
-
-                } catch (e: Exception) {
-                    false
-                }
-            }.sortedBy {
-                try {
-                    LocalDate.parse(it.fechaCaducidad, DateTimeFormatter.ISO_DATE)
-                } catch (e: Exception) {
-                    LocalDate.MAX
-                }
-            }
 
             if (filteredAlimentos.isEmpty()) {
                 Box(
