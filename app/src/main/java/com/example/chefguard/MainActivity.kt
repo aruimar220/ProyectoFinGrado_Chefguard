@@ -122,7 +122,7 @@ fun createNotificationChannel(context: Context) {
 }
 
 fun scheduleDailyNotification(context: Context) {
-    val workRequest = PeriodicWorkRequestBuilder<AlertNotificationWorker>(24, TimeUnit.HOURS)
+    val workRequest = PeriodicWorkRequestBuilder<AlertNotificationWorker>(15, TimeUnit.MINUTES)
         .build()
 
     WorkManager.getInstance(context).enqueueUniquePeriodicWork(
