@@ -12,12 +12,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.chefguard.ui.components.BottomNavBar
 import com.example.chefguard.ui.screens.*
@@ -32,17 +28,17 @@ import androidx.work.WorkManager
 import androidx.work.ExistingPeriodicWorkPolicy
 import java.util.concurrent.TimeUnit
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         createNotificationChannel(this)
 
+        val navigateToFromIntent = intent.getStringExtra("navigate_to")
+
         setContent {
             ChefguardTheme {
                 val navController = rememberNavController()
-
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route ?: ""
 
@@ -62,7 +58,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         NavHost(
                             navController = navController,
-                            startDestination = "login"
+                            startDestination = "splash"
                         ) {
                             composable("login") { LoginScreen(navController) }
                             composable("register") { RegisterScreen(navController) }
@@ -87,37 +83,59 @@ class MainActivity : ComponentActivity() {
                                 val id = backStackEntry.arguments?.getInt("id") ?: 0
                                 EditItemScreen(navController, id)
                             }
+                            composable("edit_profile") { EditProfileScreen(navController) }
+
                             composable("splash") {
-                                val isLoggedIn = PreferencesManager.getLoginState(LocalContext.current)
-                                if (isLoggedIn) {
-                                    navController.navigate("home") {
-                                        popUpTo("splash") { inclusive = true }
-                                    }
-                                } else {
-                                    navController.navigate("login") {
-                                        popUpTo("splash") { inclusive = true }
+                                val context = LocalContext.current
+                                val isLoggedIn = PreferencesManager.getLoginState(context)
+
+                                LaunchedEffect(Unit) {
+                                    when {
+                                        !navigateToFromIntent.isNullOrEmpty() -> {
+                                            navController.navigate(navigateToFromIntent) {
+                                                popUpTo("splash") { inclusive = true }
+                                            }
+                                        }
+                                        isLoggedIn -> {
+                                            navController.navigate("home") {
+                                                popUpTo("splash") { inclusive = true }
+                                            }
+                                        }
+                                        else -> {
+                                            navController.navigate("login") {
+                                                popUpTo("splash") { inclusive = true }
+                                            }
+                                        }
                                     }
                                 }
                             }
-                            composable("edit_profile") { EditProfileScreen(navController) }
                         }
                     }
                 }
             }
         }
-    }
-}
 
-fun createNotificationChannel(context: Context) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val name = "Alertas"
-        val descriptionText = "Notificaciones de alimentos por caducar"
-        val importance = NotificationManager.IMPORTANCE_HIGH
-        val channel = NotificationChannel("alert_channel", name, importance).apply {
-            description = descriptionText
+        val workRequest = PeriodicWorkRequestBuilder<AlertNotificationWorker>(24, TimeUnit.HOURS).build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "AlertNotificationWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+    }
+
+    private fun createNotificationChannel(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Alertas"
+            val descriptionText = "Canal para alertas de alimentos por caducar"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel("alert_channel", name, importance).apply {
+                description = descriptionText
+            }
+
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
     }
 }
 
