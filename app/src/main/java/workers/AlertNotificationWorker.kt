@@ -2,8 +2,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.app.TaskStackBuilder
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.chefguard.MainActivity
@@ -23,7 +23,7 @@ class AlertNotificationWorker(
 
     override fun doWork(): Result {
         return try {
-            val result = runBlocking {
+            runBlocking {
                 val db = AppDatabase.getDatabase(context)
                 val userId = PreferencesManager.getUserId(context)
 
@@ -39,63 +39,60 @@ class AlertNotificationWorker(
                 val alimentosPorCaducar = alimentos.filter { alimento ->
                     try {
                         val fechaCaducidad = LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
-                        fechaCaducidad.isAfter(hoy) && fechaCaducidad.isBefore(hoy.plusDays(2))
+                        fechaCaducidad.isAfter(hoy.minusDays(1)) && fechaCaducidad.isBefore(hoy.plusDays(2))
                     } catch (e: Exception) {
                         false
                     }
                 }
 
                 if (alimentosPorCaducar.isNotEmpty()) {
-                    showNotification(alimentosPorCaducar)
+                    showGroupedNotification(alimentosPorCaducar)
                 }
 
                 Result.success()
             }
-
-            result
         } catch (e: Exception) {
             Result.failure()
         }
     }
 
-    private fun showNotification(alimentosPorCaducar: List<AlimentoEntity>) {
-        val notificationId = 1
+    private fun showGroupedNotification(alimentos: List<AlimentoEntity>) {
         val channelId = "alert_channel"
-
-        val message = alimentosPorCaducar.joinToString("\n") { alimento ->
-            val fechaCaducidad = LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
-            val diasRestantes = fechaCaducidad.toEpochDay() - LocalDate.now().toEpochDay()
-            "${alimento.nombre} (caduca en $diasRestantes días)"
-        }
-
-        val alimento = alimentosPorCaducar.firstOrNull() ?: return
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra("navigate_to", "item_details/${alimento.id}")
+
+            if (alimentos.size == 1) {
+                putExtra("navigate_to", "item_details/${alimentos.first().id}")
+            } else {
+                putExtra("navigate_to", "alerts")
+            }
         }
 
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            0,
-            intent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            else
-                PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        val pendingIntent = requireNotNull(TaskStackBuilder.create(context).run {
+            addNextIntentWithParentStack(intent)
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        })
+
+        val mensaje = if (alimentos.size == 1) {
+            val alimento = alimentos.first()
+            val fechaCaducidad = LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
+            val diasRestantes = fechaCaducidad.toEpochDay() - LocalDate.now().toEpochDay()
+            "${alimento.nombre} caduca en $diasRestantes días"
+        } else {
+            "Tienes ${alimentos.size} alimentos por caducar"
+        }
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("Alimentos próximos a caducar")
-            .setContentText("Los siguientes alimentos están por caducar pronto:")
-            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setContentTitle("Alerta de caducidad")
+            .setContentText(mensaje)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(notificationId, notification)
+        notificationManager.notify(9999, notification)
     }
 }
