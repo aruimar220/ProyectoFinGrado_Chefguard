@@ -3,15 +3,23 @@ package com.example.chefguard
 import AlertNotificationWorker
 import EditProfileScreen
 import ProfileScreen
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
@@ -19,10 +27,6 @@ import com.example.chefguard.ui.components.BottomNavBar
 import com.example.chefguard.ui.screens.*
 import com.example.chefguard.ui.theme.ChefguardTheme
 import com.example.chefguard.utils.PreferencesManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.os.Build
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -31,6 +35,17 @@ import java.util.concurrent.TimeUnit
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+            }
+        }
 
         createNotificationChannel(this)
 
@@ -115,7 +130,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val workRequest = PeriodicWorkRequestBuilder<AlertNotificationWorker>(24, TimeUnit.HOURS).build()
+        val workRequest =
+            PeriodicWorkRequestBuilder<AlertNotificationWorker>(24, TimeUnit.HOURS).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "AlertNotificationWork",
             ExistingPeriodicWorkPolicy.KEEP,
