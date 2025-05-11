@@ -13,11 +13,15 @@ import com.example.chefguard.model.AppDatabase
 import com.example.chefguard.model.UsuarioEntity
 import kotlinx.coroutines.launch
 import java.util.regex.Pattern
+import com.google.firebase.auth.FirebaseAuth
+
 
 @Composable
 fun RegisterScreen(navController: NavController) {
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
+    val auth = FirebaseAuth.getInstance()
+
 
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -115,20 +119,28 @@ fun RegisterScreen(navController: NavController) {
                     error = "La contraseña debe tener al menos 8 caracteres"
                 } else {
                     scope.launch {
-                        val existingUser = db.usuarioDao().obtenerUsuarioPorCorreo(email)
-                        if (existingUser == null) {
-                            val encryptedPassword = encryptPassword(password)
-                            val newUser = UsuarioEntity(
-                                nombre = username,
-                                correo = email,
-                                contrasena = encryptedPassword
-                            )
-                            db.usuarioDao().insertarUsuario(newUser)
-                            navController.navigate("login")
-                        } else {
-                            error = "El correo ya está registrado"
-                        }
+                        auth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    scope.launch {
+                                        val encryptedPassword = encryptPassword(password)
+                                        val newUser = UsuarioEntity(
+                                            nombre = username,
+                                            correo = email,
+                                            contrasena = encryptedPassword
+                                        )
+                                        db.usuarioDao().insertarUsuario(newUser)
+                                        navController.navigate("login")
+                                    }
+                                } else {
+                                    error = when (val exception = task.exception) {
+                                        is com.google.firebase.auth.FirebaseAuthUserCollisionException -> "El correo ya está registrado en Firebase"
+                                        else -> "Error al registrar: ${exception?.localizedMessage}"
+                                    }
+                                }
+                            }
                     }
+
                 }
             },
             modifier = Modifier.fillMaxWidth()

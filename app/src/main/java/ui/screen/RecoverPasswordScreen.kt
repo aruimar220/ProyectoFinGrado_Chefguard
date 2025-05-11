@@ -10,111 +10,80 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chefguard.model.AppDatabase
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @Composable
 fun RecoverPasswordScreen(navController: NavController) {
     val context = LocalContext.current
-    val db = AppDatabase.getDatabase(context)
-
     var email by remember { mutableStateOf("") }
-    var newPassword by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
-
-    val scope = rememberCoroutineScope()
+    var message by remember { mutableStateOf("") }
+    var isSuccess by remember { mutableStateOf<Boolean?>(null) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .padding(32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Recuperar Contraseña", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            text = "Recuperar Contraseña",
+            style = MaterialTheme.typography.headlineMedium
+        )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Correo Electrónico") },
+            label = { Text("Correo electrónico") },
+            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = newPassword,
-            onValueChange = { newPassword = it },
-            label = { Text("Nueva Contraseña") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Confirmar Contraseña") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        if (error.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                if (email.isEmpty()) {
-                    error = "El correo electrónico no puede estar vacío"
-                } else if (newPassword.isEmpty() || confirmPassword.isEmpty()) {
-                    error = "La nueva contraseña y su confirmación son obligatorias"
-                } else if (newPassword.length < 8) {
-                    error = "La contraseña debe tener al menos 8 caracteres"
-                } else if (newPassword != confirmPassword) {
-                    error = "Las contraseñas no coinciden"
-                } else {
-                    scope.launch {
-                        val user = db.usuarioDao().obtenerUsuarioPorCorreo(email)
-                        if (user != null) {
-                            // Actualizar la contraseña en la base de datos
-                            val encryptedPassword = encryptPassword(newPassword)
-                            db.usuarioDao().actualizarContraseña(user.id, encryptedPassword)
-                            navController.popBackStack()
-                        } else {
-                            error = "El correo electrónico no está registrado"
+                if (email.isNotBlank()) {
+                    FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                message = "Te hemos enviado un correo para restablecer tu contraseña."
+                                isSuccess = true
+                            } else {
+                                message = task.exception?.localizedMessage ?: "Ocurrió un error."
+                                isSuccess = false
+                            }
                         }
-                    }
+                } else {
+                    message = "Introduce tu correo electrónico."
+                    isSuccess = false
                 }
             },
-            enabled = email.isNotEmpty() && newPassword.isNotEmpty() && confirmPassword.isNotEmpty(),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Restablecer Contraseña")
+            Text("Enviar correo de recuperación")
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (message.isNotEmpty()) {
+            Text(
+                text = message,
+                color = when (isSuccess) {
+                    true -> MaterialTheme.colorScheme.primary
+                    false -> MaterialTheme.colorScheme.error
+                    null -> MaterialTheme.colorScheme.onBackground
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         TextButton(onClick = { navController.popBackStack() }) {
             Text("Volver al inicio de sesión")
         }
     }
-}
-
-// Función para cifrar la contraseña (SHA-256)
-fun encryptPassword(password: String): String {
-    val bytes = password.toByteArray()
-    val md = java.security.MessageDigest.getInstance("SHA-256")
-    val digest = md.digest(bytes)
-    return digest.fold("") { str, it -> str + "%02x".format(it) }
 }
