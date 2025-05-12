@@ -20,6 +20,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
@@ -60,11 +62,23 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        if (currentRoute !in listOf("login", "register")) {
+                        if (currentRoute !in listOf("login", "register", "splash")) {
                             BottomNavBar(navController)
                         }
-                    }
-                ) { innerPadding ->
+                    },
+                    floatingActionButton = {
+                        if (currentRoute !in listOf("login", "register", "splash")) {
+                            FloatingActionButton(
+                                onClick = { navController.navigate("chatIA") },
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ) {
+                                Icon(Icons.Filled.Info, contentDescription = "Chat IA")
+                            }
+                        }
+                    },
+                    floatingActionButtonPosition = FabPosition.Start
+                )
+                { innerPadding ->
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -124,6 +138,10 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
+                            composable("chatIA") {
+                                ChatIAScreen()
+                            }
+
                         }
                     }
                 }
@@ -165,3 +183,4 @@ fun scheduleDailyNotification(context: Context) {
         workRequest
     )
 }
+
