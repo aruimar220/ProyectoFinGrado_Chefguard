@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.chefguard.model.AppDatabase
 import com.example.chefguard.model.UsuarioEntity
+import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
 import java.util.regex.Pattern
 import com.google.firebase.auth.FirebaseAuth
@@ -130,7 +131,12 @@ fun RegisterScreen(navController: NavController) {
                                             contrasena = encryptedPassword
                                         )
                                         db.usuarioDao().insertarUsuario(newUser)
-                                        navController.navigate("login")
+
+                                        val usuarioRegistrado = db.usuarioDao().obtenerUsuarioPorCorreo(email)
+                                        usuarioRegistrado?.let {
+                                            PreferencesManager.saveUserId(context, it.id)
+                                            navController.navigate("login") // ⬅️ Navegar después de guardar el ID
+                                        }
                                     }
                                 } else {
                                     error = when (val exception = task.exception) {

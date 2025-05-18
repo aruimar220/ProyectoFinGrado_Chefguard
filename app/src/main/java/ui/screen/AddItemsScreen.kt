@@ -1,6 +1,8 @@
 package com.example.chefguard.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -28,9 +30,11 @@ fun AddItemsScreen(navController: NavController) {
     val db = AppDatabase.getDatabase(context)
     val coroutineScope = rememberCoroutineScope()
     val userId = PreferencesManager.getUserId(context)
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(24.dp),
         verticalArrangement = Arrangement.Top
     ) {

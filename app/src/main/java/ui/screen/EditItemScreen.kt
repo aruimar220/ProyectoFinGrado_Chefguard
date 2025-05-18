@@ -1,6 +1,8 @@
 package com.example.chefguard.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -28,6 +30,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
     var tipoAlimento by remember { mutableStateOf("") }
     var ambiente by remember { mutableStateOf("") }
     val userId = PreferencesManager.getUserId(context)
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(id) {
         viewModel.cargarAlimento(db, id)
@@ -51,6 +54,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(24.dp),
         verticalArrangement = Arrangement.Top
     ) {
