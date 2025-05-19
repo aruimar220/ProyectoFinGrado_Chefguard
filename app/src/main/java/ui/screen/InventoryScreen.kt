@@ -1,5 +1,8 @@
 package com.example.chefguard.ui.screens
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,11 +20,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
+import com.example.chefguard.utils.exportAlimentosToCsv
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 @Composable
 fun InventoryScreen(navController: NavController) {
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
+    var alimentos by remember { mutableStateOf<List<AlimentoEntity>>(emptyList()) }
+
 
     val userId = PreferencesManager.getUserId(context)
     if (userId == -1) {
@@ -34,10 +42,55 @@ fun InventoryScreen(navController: NavController) {
     }
 
     val scope = rememberCoroutineScope()
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let {
+                scope.launch {
+                    try {
+                        val inputStream = context.contentResolver.openInputStream(uri)
+                        val reader = BufferedReader(InputStreamReader(inputStream))
+                        val lines = reader.readLines()
+                        reader.close()
+
+                        val alimentosImportados = lines
+                            .drop(1)
+                            .mapNotNull { line -> parseCsvLineToAlimento(line, userId) }
+
+                        val existentes = db.alimentoDao().obtenerAlimentosPorUsuario(userId)
+
+                        val nuevos = alimentosImportados.filterNot { nuevo ->
+                            existentes.any { existente ->
+                                existente.nombre == nuevo.nombre &&
+                                        existente.fechaCaducidad == nuevo.fechaCaducidad &&
+                                        existente.lote == nuevo.lote
+                            }
+                        }
+
+                        if (nuevos.isNotEmpty()) {
+                            db.alimentoDao().insertarAlimentos(nuevos)
+                        }
+
+
+                        alimentos = db.alimentoDao().obtenerAlimentosPorUsuario(userId)
+
+                        Toast.makeText(
+                            context,
+                            "Se importaron ${nuevos.size} nuevos alimentos",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Toast.makeText(context, "Error al importar", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    )
+
+
 
     var searchText by remember { mutableStateOf("") }
-    var alimentos by remember { mutableStateOf<List<AlimentoEntity>>(emptyList()) }
-
     var filtroEstado by remember { mutableStateOf("Todos") }
     val estados = listOf("Todos", "Disponible", "Agotado", "Caducado")
 
@@ -96,6 +149,49 @@ fun InventoryScreen(navController: NavController) {
                     selectedValue = filtroEstado,
                     onItemSelected = { nuevoEstado -> filtroEstado = nuevoEstado }
                 )
+            }
+
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = {
+                    scope.launch {
+                        val file = exportAlimentosToCsv(context, alimentos)
+                        if (file != null) {
+                            val uri = androidx.core.content.FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.fileprovider",
+                                file
+                            )
+                            val shareIntent = android.content.Intent().apply {
+                                action = android.content.Intent.ACTION_SEND
+                                type = "text/csv"
+                                putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            context.startActivity(
+                                android.content.Intent.createChooser(
+                                    shareIntent,
+                                    "Compartir CSV"
+                                )
+                            )
+                        }
+                    }
+                }) {
+                    Text("Exportar CSV")
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                TextButton(onClick = {
+                    importLauncher.launch(arrayOf("text/csv"))
+                }) {
+                    Text("Importar CSV")
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -185,3 +281,25 @@ fun DropdownMenuExample(
         }
     }
 }
+
+fun parseCsvLineToAlimento(line: String, userId: Int): AlimentoEntity? {
+    val tokens = line.split(",")
+    return try {
+        AlimentoEntity(
+            ID_usuario = userId,
+            nombre = tokens.getOrNull(0)?.trim() ?: return null,
+            cantidad = tokens.getOrNull(1)?.trim()?.toIntOrNull() ?: return null,
+            fechaCaducidad = tokens.getOrNull(2)?.trim(),
+            fechaConsumo = tokens.getOrNull(3)?.trim(),
+            lote = tokens.getOrNull(4)?.trim(),
+            estado = tokens.getOrNull(5)?.trim(),
+            proveedor = tokens.getOrNull(6)?.trim(),
+            tipoAlimento = tokens.getOrNull(7)?.trim(),
+            ambiente = tokens.getOrNull(8)?.trim()
+        )
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
