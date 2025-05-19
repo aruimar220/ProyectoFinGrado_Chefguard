@@ -287,19 +287,20 @@ fun parseCsvLineToAlimento(line: String, userId: Int): AlimentoEntity? {
     return try {
         AlimentoEntity(
             ID_usuario = userId,
-            nombre = tokens.getOrNull(0)?.trim() ?: return null,
-            cantidad = tokens.getOrNull(1)?.trim()?.toIntOrNull() ?: return null,
-            fechaCaducidad = tokens.getOrNull(2)?.trim(),
-            fechaConsumo = tokens.getOrNull(3)?.trim(),
-            lote = tokens.getOrNull(4)?.trim(),
-            estado = tokens.getOrNull(5)?.trim(),
-            proveedor = tokens.getOrNull(6)?.trim(),
-            tipoAlimento = tokens.getOrNull(7)?.trim(),
-            ambiente = tokens.getOrNull(8)?.trim()
+            nombre = tokens.getOrNull(2)?.trim()?.removeSurrounding("\"") ?: return null,
+            cantidad = tokens.getOrNull(3)?.trim()?.toIntOrNull() ?: return null,
+            fechaCaducidad = tokens.getOrNull(4)?.trim()?.removeSurrounding("\""),
+            fechaConsumo = tokens.getOrNull(5)?.trim()?.removeSurrounding("\""),
+            lote = tokens.getOrNull(6)?.trim()?.removeSurrounding("\""),
+            estado = tokens.getOrNull(7)?.trim()?.removeSurrounding("\""),
+            proveedor = tokens.getOrNull(8)?.trim()?.removeSurrounding("\""),
+            tipoAlimento = tokens.getOrNull(9)?.trim()?.removeSurrounding("\""),
+            ambiente = tokens.getOrNull(10)?.trim()?.removeSurrounding("\"")
         )
     } catch (e: Exception) {
         e.printStackTrace()
         null
     }
 }
+
 
