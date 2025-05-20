@@ -39,6 +39,7 @@ class AlertNotificationWorker(
                 val alimentosPorCaducar = alimentos.filter { alimento ->
                     try {
                         val fechaCaducidad = LocalDate.parse(alimento.fechaCaducidad, DateTimeFormatter.ISO_DATE)
+                        fechaCaducidad.isEqual(hoy) ||
                         fechaCaducidad.isAfter(hoy.minusDays(1)) && fechaCaducidad.isBefore(hoy.plusDays(2))
                     } catch (e: Exception) {
                         false

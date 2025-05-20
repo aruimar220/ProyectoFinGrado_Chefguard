@@ -1,4 +1,3 @@
-// CsvUtils.kt
 package com.example.chefguard.utils
 
 import android.content.Context
@@ -11,10 +10,8 @@ fun exportAlimentosToCsv(context: Context, alimentos: List<AlimentoEntity>): Fil
         val csvFile = File(context.cacheDir, "alimentos_export.csv")
         val writer = FileWriter(csvFile)
 
-        // Encabezado del CSV
         writer.append("ID,ID_usuario,Nombre,Cantidad,FechaCaducidad,FechaConsumo,Lote,Estado,Proveedor,TipoAlimento,Ambiente\n")
 
-        // Escribir cada alimento como línea en el CSV
         for (alimento in alimentos) {
             writer.append("${alimento.id},")
             writer.append("${alimento.ID_usuario},")

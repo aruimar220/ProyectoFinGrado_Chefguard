@@ -201,7 +201,7 @@ fun InventoryScreen(navController: NavController) {
                         alimento.nombre?.contains(searchText, ignoreCase = true) == true ||
                         alimento.proveedor?.contains(searchText, ignoreCase = true) == true ||
                         alimento.tipoAlimento?.contains(searchText, ignoreCase = true) == true) &&
-                        (filtroEstado == "Todos" || alimento.estado == filtroEstado)
+                        (filtroEstado == "Todos" || alimento.estado?.lowercase() == filtroEstado.lowercase())
             }
 
             if (filteredAlimentos.isEmpty()) {
@@ -220,10 +220,10 @@ fun InventoryScreen(navController: NavController) {
                     items(filteredAlimentos.size) { index ->
                         val alimento = filteredAlimentos[index]
 
-                        val colorEstado = when (alimento.estado) {
-                            "Disponible" -> MaterialTheme.colorScheme.primaryContainer
-                            "Agotado" -> MaterialTheme.colorScheme.errorContainer
-                            "Caducado" -> MaterialTheme.colorScheme.surfaceVariant
+                        val colorEstado = when (alimento.estado?.lowercase()) {
+                            "disponible" -> MaterialTheme.colorScheme.primaryContainer
+                            "agotado" -> MaterialTheme.colorScheme.errorContainer
+                            "caducado" -> MaterialTheme.colorScheme.surfaceVariant
                             else -> MaterialTheme.colorScheme.surface
                         }
 
