@@ -1,11 +1,12 @@
-package com.example.chefguard.model
+package data.local.dao
 
 import androidx.room.*
+import data.local.entity.AlimentoEntity
 
 @Dao
 interface AlimentoDao {
     @Insert
-    suspend fun insertarAlimento(alimento: AlimentoEntity)
+    suspend fun insertarAlimento(alimento: AlimentoEntity): Long
 
     @Query("SELECT * FROM alimentos")
     suspend fun obtenerTodosLosAlimentos(): List<AlimentoEntity>

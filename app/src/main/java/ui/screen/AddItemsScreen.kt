@@ -8,10 +8,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.chefguard.model.AlimentoEntity
-import com.example.chefguard.model.AppDatabase
+import data.local.entity.AlimentoEntity
+import data.local.AppDatabase
 import com.example.chefguard.utils.PreferencesManager
+import com.example.chefguard.viewmodel.AlimentoViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -31,6 +33,8 @@ fun AddItemsScreen(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
     val userId = PreferencesManager.getUserId(context)
     val scrollState = rememberScrollState()
+    val viewModel: AlimentoViewModel = viewModel()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -139,7 +143,7 @@ fun AddItemsScreen(navController: NavController) {
                     )
 
                     coroutineScope.launch {
-                        db.alimentoDao().insertarAlimento(nuevoAlimento)
+                        viewModel.guardarAlimento(db, nuevoAlimento)
                     }
 
                     navController.navigate("inventory")

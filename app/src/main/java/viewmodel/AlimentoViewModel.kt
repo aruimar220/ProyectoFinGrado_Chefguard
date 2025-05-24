@@ -2,8 +2,9 @@ package com.example.chefguard.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.chefguard.model.AlimentoEntity
-import com.example.chefguard.model.AppDatabase
+import com.tuapp.data.remote.FirestoreSyncHelper
+import data.local.entity.AlimentoEntity
+import data.local.AppDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,10 +22,19 @@ class AlimentoViewModel : ViewModel() {
     fun guardarAlimento(db: AppDatabase, alimento: AlimentoEntity) {
         viewModelScope.launch {
             if (alimento.id == 0) {
-                db.alimentoDao().insertarAlimento(alimento)
+                val newId = db.alimentoDao().insertarAlimento(alimento).toInt()
+                val alimentoConId = alimento.copy(id = newId)
+                FirestoreSyncHelper.syncAlimento(alimentoConId)
             } else {
                 db.alimentoDao().actualizarAlimento(alimento)
+                FirestoreSyncHelper.syncAlimento(alimento)
             }
+        }
+    }
+    fun eliminarAlimento(db: AppDatabase, alimentoId: Int) {
+        viewModelScope.launch {
+            db.alimentoDao().eliminarAlimento(alimentoId)
+            FirestoreSyncHelper.eliminarAlimentoDeFirestore(alimentoId)
         }
     }
 }

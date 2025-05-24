@@ -1,7 +1,7 @@
 package com.example.chefguard.utils
 
 import android.content.Context
-import com.example.chefguard.model.AlimentoEntity
+import data.local.entity.AlimentoEntity
 import java.io.File
 import java.io.FileWriter
 

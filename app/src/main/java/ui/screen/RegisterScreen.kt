@@ -9,8 +9,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.chefguard.model.AppDatabase
-import com.example.chefguard.model.UsuarioEntity
+import data.local.AppDatabase
+import data.local.entity.UsuarioEntity
 import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
 import java.util.regex.Pattern
@@ -135,7 +135,7 @@ fun RegisterScreen(navController: NavController) {
                                         val usuarioRegistrado = db.usuarioDao().obtenerUsuarioPorCorreo(email)
                                         usuarioRegistrado?.let {
                                             PreferencesManager.saveUserId(context, it.id)
-                                            navController.navigate("login") // ⬅️ Navegar después de guardar el ID
+                                            navController.navigate("login")
                                         }
                                     }
                                 } else {

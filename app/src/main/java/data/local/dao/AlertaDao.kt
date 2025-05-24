@@ -1,6 +1,7 @@
-package com.example.chefguard.model
+package data.local.dao
 
 import androidx.room.*
+import data.local.entity.AlertaEntity
 
 @Dao
 interface AlertaDao {

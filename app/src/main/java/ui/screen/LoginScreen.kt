@@ -9,8 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.chefguard.model.AppDatabase
-import com.example.chefguard.model.UsuarioEntity
+import data.local.AppDatabase
 import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
 import java.security.MessageDigest

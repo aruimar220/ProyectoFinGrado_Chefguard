@@ -1,12 +1,14 @@
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.chefguard.model.AppDatabase
+import com.tuapp.data.remote.FirestoreSyncHelper
+import data.local.AppDatabase
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(private val db: AppDatabase) : ViewModel() {
     fun eliminarCuenta(userId: Int, onAccountDeleted: () -> Unit) {
         viewModelScope.launch {
+            FirestoreSyncHelper.eliminarUsuarioDeFirestore(userId)
             db.usuarioDao().eliminarUsuarioPorId(userId)
             onAccountDeleted()
         }

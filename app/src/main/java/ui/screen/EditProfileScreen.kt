@@ -9,10 +9,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.chefguard.model.AppDatabase
-import com.example.chefguard.model.UsuarioEntity
+import data.local.AppDatabase
+import data.local.entity.UsuarioEntity
 import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
 

@@ -8,8 +8,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.chefguard.model.AlimentoEntity
-import com.example.chefguard.model.AppDatabase
+import com.example.chefguard.viewmodel.AlimentoViewModel
+import data.local.entity.AlimentoEntity
+import data.local.AppDatabase
 import kotlinx.coroutines.launch
 
 @Composable
@@ -20,6 +21,7 @@ fun ItemDetailsScreen(
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
     val coroutineScope = rememberCoroutineScope()
+    val viewModel: AlimentoViewModel = viewModel()
 
     var alimento by remember { mutableStateOf<AlimentoEntity?>(null) }
 
@@ -52,9 +54,9 @@ fun ItemDetailsScreen(
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        db.alimentoDao().eliminarAlimento(alimento!!.id)
+                        viewModel.eliminarAlimento(db, alimento!!.id)
+                        navController.navigate("inventory")
                     }
-                    navController.navigate("inventory")
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)

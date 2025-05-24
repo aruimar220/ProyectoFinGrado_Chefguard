@@ -7,8 +7,8 @@ import androidx.core.app.TaskStackBuilder
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.chefguard.MainActivity
-import com.example.chefguard.model.AlimentoEntity
-import com.example.chefguard.model.AppDatabase
+import data.local.entity.AlimentoEntity
+import data.local.AppDatabase
 import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking

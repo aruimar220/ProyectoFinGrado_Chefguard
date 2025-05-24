@@ -1,4 +1,4 @@
-package com.example.chefguard.model
+package data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -11,8 +11,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.chefguard.model.AlimentoEntity
-import com.example.chefguard.model.AppDatabase
+import data.local.entity.AlimentoEntity
+import data.local.AppDatabase
 import com.example.chefguard.scheduleDailyNotification
 import com.example.chefguard.utils.PreferencesManager
 import java.time.LocalDate

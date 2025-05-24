@@ -1,9 +1,15 @@
-package com.example.chefguard.model
+package data.local
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import data.local.dao.AlertaDao
+import data.local.entity.AlertaEntity
+import data.local.dao.AlimentoDao
+import data.local.entity.AlimentoEntity
+import data.local.dao.UsuarioDao
+import data.local.entity.UsuarioEntity
 
 @Database(
     entities = [UsuarioEntity::class, AlimentoEntity::class, AlertaEntity::class],

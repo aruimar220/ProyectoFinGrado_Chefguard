@@ -10,8 +10,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.chefguard.model.AlimentoEntity
-import com.example.chefguard.model.AppDatabase
+import data.local.entity.AlimentoEntity
+import data.local.AppDatabase
 import com.example.chefguard.utils.PreferencesManager
 import com.example.chefguard.viewmodel.AlimentoViewModel
 

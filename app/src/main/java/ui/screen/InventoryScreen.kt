@@ -14,8 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.chefguard.model.AlimentoEntity
-import com.example.chefguard.model.AppDatabase
+import data.local.entity.AlimentoEntity
+import data.local.AppDatabase
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import com.example.chefguard.utils.PreferencesManager

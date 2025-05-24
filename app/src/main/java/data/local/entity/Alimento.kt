@@ -1,4 +1,4 @@
-package com.example.chefguard.model
+package data.local.entity
 
 data class Alimento(
     val nombre: String,
