@@ -1,9 +1,13 @@
 package com.tuapp.data.remote
 
+import android.util.Log
+import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import data.local.entity.AlertaEntity
 import data.local.entity.AlimentoEntity
 import data.local.entity.UsuarioEntity
+import kotlinx.coroutines.tasks.await
 
 object FirestoreSyncHelper {
 
@@ -36,9 +40,14 @@ object FirestoreSyncHelper {
             .collection("alimentos")
             .document(alimentoId.toString())
             .delete()
-            .addOnSuccessListener { println("Alimento eliminado de Firestore") }
-            .addOnFailureListener { e -> println("Error al eliminar: ${e.message}") }
+            .addOnSuccessListener {
+                Log.d("FirestoreDelete", "Alimento $alimentoId eliminado de Firestore")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirestoreDelete", "Error al eliminar alimento $alimentoId: ${e.message}")
+            }
     }
+
 
     fun syncUsuarioToFirestore(usuario: UsuarioEntity) {
         val usuarioMap = mapOf(
@@ -53,12 +62,28 @@ object FirestoreSyncHelper {
             .addOnFailureListener { e -> println("Error al subir usuario: ${e.message}") }
     }
 
-    fun eliminarUsuarioDeFirestore(userId: Int) {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("usuarios")
-            .document(userId.toString())
-            .delete()
+    suspend fun eliminarUsuarioDeFirestore(userId: Int) {
+        val db = Firebase.firestore
+
+
+        db.collection("alimentos")
+            .whereEqualTo("ID_usuario", userId)
+            .get()
+            .await()
+            .documents.forEach { it.reference.delete().await() }
+
+
+        db.collection("alertas")
+            .whereEqualTo("ID_usuario", userId)
+            .get()
+            .await()
+            .documents.forEach { it.reference.delete().await() }
+
+
+        db.collection("usuarios").document(userId.toString()).delete().await()
     }
+
+
 
     fun syncAlertaToFirestore(alerta: AlertaEntity) {
         val alertaMap = mapOf(

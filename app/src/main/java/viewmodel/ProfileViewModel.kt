@@ -14,6 +14,7 @@ class ProfileViewModel(private val db: AppDatabase) : ViewModel() {
         }
     }
 
+
     companion object {
         fun provideFactory(db: AppDatabase): ViewModelProvider.Factory {
             return object : ViewModelProvider.Factory {

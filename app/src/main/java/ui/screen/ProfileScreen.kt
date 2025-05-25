@@ -13,6 +13,8 @@ import data.local.AppDatabase
 import data.local.entity.UsuarioEntity
 import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
+import android.widget.Toast
+
 
 @Composable
 fun ProfileScreen(navController: NavController) {
@@ -75,7 +77,7 @@ fun ProfileScreen(navController: NavController) {
 
         Button(
             onClick = {
-                navController.navigate("edit_profile") // Navegar a la pantalla de edición
+                navController.navigate("edit_profile")
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -115,11 +117,20 @@ fun ProfileScreen(navController: NavController) {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            scope.launch {
-                                db.usuarioDao().eliminarUsuarioPorId(userId)
-                                PreferencesManager.saveUserId(context, -1)
-                                navController.navigate("login") {
-                                    popUpTo("profile") { inclusive = true }
+                            val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                            user?.let {
+                                viewModel.eliminarCuenta(userId) {
+                                    it.delete()
+                                        .addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                PreferencesManager.saveUserId(context, -1)
+                                                navController.navigate("login") {
+                                                    popUpTo("profile") { inclusive = true }
+                                                }
+                                            } else {
+                                                Toast.makeText(context, "Error al eliminar cuenta de Firebase", Toast.LENGTH_LONG).show()
+                                            }
+                                        }
                                 }
                             }
                             mostrarDialogoBorrarCuenta = false
