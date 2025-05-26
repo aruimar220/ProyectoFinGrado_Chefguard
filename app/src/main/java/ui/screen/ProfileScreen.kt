@@ -14,6 +14,7 @@ import data.local.entity.UsuarioEntity
 import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
 import android.widget.Toast
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 
 @Composable
@@ -110,39 +111,68 @@ fun ProfileScreen(navController: NavController) {
         }
 
         if (mostrarDialogoBorrarCuenta) {
+            var password by remember { mutableStateOf("") }
+
             AlertDialog(
                 onDismissRequest = { mostrarDialogoBorrarCuenta = false },
-                title = { Text(text = "Borrar Cuenta") },
-                text = { Text(text = "¿Estás seguro de que deseas borrar tu cuenta? Esta acción no se puede deshacer.") },
+                title = { Text(text = "Confirmar Eliminación") },
+                text = {
+                    Column {
+                        Text(text = "Introduce tu contraseña para confirmar la eliminación de tu cuenta:")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = { Text("Contraseña") },
+                            singleLine = true,
+                            visualTransformation = PasswordVisualTransformation()
+                        )
+                    }
+                },
                 confirmButton = {
                     TextButton(
                         onClick = {
                             val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-                            user?.let {
-                                viewModel.eliminarCuenta(userId) {
-                                    it.delete()
-                                        .addOnCompleteListener { task ->
-                                            if (task.isSuccessful) {
-                                                PreferencesManager.saveUserId(context, -1)
-                                                navController.navigate("login") {
-                                                    popUpTo("profile") { inclusive = true }
+                            val email = user?.email
+
+                            if (user != null && !email.isNullOrEmpty()) {
+                                val credential = com.google.firebase.auth.EmailAuthProvider.getCredential(email, password)
+
+                                user.reauthenticate(credential)
+                                    .addOnCompleteListener { reauthTask ->
+                                        if (reauthTask.isSuccessful) {
+                                            // Ahora sí se puede eliminar
+                                            scope.launch {
+                                                viewModel.eliminarCuenta(userId) {
+                                                    user.delete()
+                                                        .addOnCompleteListener { deleteTask ->
+                                                            if (deleteTask.isSuccessful) {
+                                                                PreferencesManager.saveUserId(context, -1)
+                                                                navController.navigate("login") {
+                                                                    popUpTo("profile") { inclusive = true }
+                                                                }
+                                                            } else {
+                                                                Toast.makeText(context, "Error al eliminar cuenta de Firebase", Toast.LENGTH_LONG).show()
+                                                            }
+                                                        }
                                                 }
-                                            } else {
-                                                Toast.makeText(context, "Error al eliminar cuenta de Firebase", Toast.LENGTH_LONG).show()
                                             }
+                                        } else {
+                                            Toast.makeText(context, "Contraseña incorrecta o sesión expirada", Toast.LENGTH_LONG).show()
                                         }
-                                }
+                                    }
+                            } else {
+                                Toast.makeText(context, "No hay usuario autenticado", Toast.LENGTH_LONG).show()
                             }
+
                             mostrarDialogoBorrarCuenta = false
                         }
                     ) {
-                        Text(text = "Aceptar", color = MaterialTheme.colorScheme.error)
+                        Text(text = "Eliminar", color = MaterialTheme.colorScheme.error)
                     }
                 },
                 dismissButton = {
-                    TextButton(
-                        onClick = { mostrarDialogoBorrarCuenta = false }
-                    ) {
+                    TextButton(onClick = { mostrarDialogoBorrarCuenta = false }) {
                         Text(text = "Cancelar")
                     }
                 }

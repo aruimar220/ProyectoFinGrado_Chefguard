@@ -56,11 +56,12 @@ object FirestoreSyncHelper {
         )
 
         firestore.collection("usuarios")
-            .document(usuario.correo)
+            .document(usuario.id.toString())
             .set(usuarioMap)
             .addOnSuccessListener { println("Usuario subido a Firestore") }
             .addOnFailureListener { e -> println("Error al subir usuario: ${e.message}") }
     }
+
 
     suspend fun eliminarUsuarioDeFirestore(userId: Int) {
         val db = Firebase.firestore
