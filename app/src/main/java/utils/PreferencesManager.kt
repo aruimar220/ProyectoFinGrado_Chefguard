@@ -13,11 +13,6 @@ object PreferencesManager {
         sharedPreferences.edit().putBoolean(KEY_IS_LOGGED_IN, isLoggedIn).apply()
     }
 
-    fun getLoginState(context: Context): Boolean {
-        val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false)
-    }
-
     fun saveUserId(context: Context, userId: Int) {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         sharedPreferences.edit().putInt(KEY_USER_ID, userId).apply()
@@ -42,4 +37,11 @@ object PreferencesManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return prefs.getBoolean(KEY_REMEMBER_ME, false)
     }
+
+    fun getLoginState(context: Context): Boolean {
+        val userId = getUserId(context)
+        val rememberMe = getRememberMe(context)
+        return userId != -1 && rememberMe
+    }
+
 }

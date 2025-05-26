@@ -30,6 +30,7 @@ import com.example.chefguard.utils.PreferencesManager
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.ExistingPeriodicWorkPolicy
+import com.google.firebase.auth.FirebaseAuth
 import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
@@ -102,7 +103,7 @@ class MainActivity : ComponentActivity() {
 
                             composable("splash") {
                                 val context = LocalContext.current
-                                val isLoggedIn = PreferencesManager.getLoginState(context)
+                                val currentUser = FirebaseAuth.getInstance().currentUser
 
                                 LaunchedEffect(Unit) {
                                     when {
@@ -111,7 +112,7 @@ class MainActivity : ComponentActivity() {
                                                 popUpTo("splash") { inclusive = true }
                                             }
                                         }
-                                        isLoggedIn -> {
+                                        currentUser != null -> {
                                             navController.navigate("home") {
                                                 popUpTo("splash") { inclusive = true }
                                             }
