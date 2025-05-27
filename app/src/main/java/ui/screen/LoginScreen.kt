@@ -13,11 +13,15 @@ import data.local.AppDatabase
 import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import data.local.entity.UsuarioEntity
 
 @Composable
 fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
     val db = AppDatabase.getDatabase(context)
+    val auth = FirebaseAuth.getInstance()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -103,19 +107,55 @@ fun LoginScreen(navController: NavController) {
                 } else if (password.isEmpty()) {
                     error = "La contraseña no puede estar vacía"
                 } else {
-                    scope.launch {
-                        val encryptedPassword = encryptPassword(password)
-                        val usuario = db.usuarioDao().validarUsuario(email, encryptedPassword)
-                        if (usuario != null) {
-                            PreferencesManager.saveUserId(context, usuario.id)
-                            PreferencesManager.saveRememberMe(context, rememberMe)
-                            navController.navigate("home") {
-                                popUpTo("login") { inclusive = true }
+                    val encryptedPassword = encryptPassword(password)
+
+                    auth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                scope.launch {
+                                    val usuarioLocal = db.usuarioDao().validarUsuario(email, encryptedPassword)
+                                    if (usuarioLocal != null) {
+                                        PreferencesManager.saveUserId(context, usuarioLocal.id)
+                                        PreferencesManager.saveRememberMe(context, rememberMe)
+                                        navController.navigate("home") {
+                                            popUpTo("login") { inclusive = true }
+                                        }
+                                    } else {
+                                        // Si no está en Room, buscar en Firestore
+                                        FirebaseFirestore.getInstance()
+                                            .collection("usuarios")
+                                            .whereEqualTo("correo", email)
+                                            .get()
+                                            .addOnSuccessListener { documents ->
+                                                if (!documents.isEmpty) {
+                                                    val doc = documents.documents[0]
+                                                    val user = UsuarioEntity(
+                                                        id = 0,
+                                                        nombre = doc.getString("nombre") ?: "",
+                                                        correo = doc.getString("correo") ?: "",
+                                                        contrasena = doc.getString("contrasena") ?: ""
+                                                    )
+                                                    scope.launch {
+                                                        val newId = db.usuarioDao().insertarUsuario(user).toInt()
+                                                        PreferencesManager.saveUserId(context, newId)
+                                                        PreferencesManager.saveRememberMe(context, rememberMe)
+                                                        navController.navigate("home") {
+                                                            popUpTo("login") { inclusive = true }
+                                                        }
+                                                    }
+                                                } else {
+                                                    error = "No se encontró el usuario en Firestore"
+                                                }
+                                            }
+                                            .addOnFailureListener {
+                                                error = "Error al recuperar usuario: ${it.localizedMessage}"
+                                            }
+                                    }
+                                }
+                            } else {
+                                error = "Credenciales incorrectas"
                             }
-                        } else {
-                            error = "Credenciales incorrectas"
                         }
-                    }
                 }
             },
             enabled = email.isNotEmpty() && password.isNotEmpty(),

@@ -31,4 +31,6 @@ interface AlimentoDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertarAlimentosSinDuplicados(alimentos: List<AlimentoEntity>)
+
+
 }

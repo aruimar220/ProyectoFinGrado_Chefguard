@@ -15,6 +15,9 @@ import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
 import java.util.regex.Pattern
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+
 
 
 @Composable
@@ -134,11 +137,19 @@ fun RegisterScreen(navController: NavController) {
 
                                         val usuarioRegistrado = db.usuarioDao().obtenerUsuarioPorCorreo(email)
                                         usuarioRegistrado?.let {
+                                            val firestore = Firebase.firestore
+                                            val userMap = hashMapOf(
+                                                "idLocal" to it.id,
+                                                "nombre" to it.nombre,
+                                                "correo" to it.correo
+                                            )
+                                            firestore.collection("usuarios").document(it.correo).set(userMap)
+
                                             PreferencesManager.saveUserId(context, it.id)
                                             navController.navigate("login")
                                         }
                                     }
-                                } else {
+                                }else {
                                     error = when (val exception = task.exception) {
                                         is com.google.firebase.auth.FirebaseAuthUserCollisionException -> "El correo ya está registrado en Firebase"
                                         else -> "Error al registrar: ${exception?.localizedMessage}"

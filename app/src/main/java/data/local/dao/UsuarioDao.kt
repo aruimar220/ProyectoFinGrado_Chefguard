@@ -6,7 +6,7 @@ import data.local.entity.UsuarioEntity
 @Dao
 interface UsuarioDao {
     @Insert
-    suspend fun insertarUsuario(usuario: UsuarioEntity)
+    suspend fun insertarUsuario(usuario: UsuarioEntity): Long
 
     @Query("SELECT * FROM usuarios WHERE correo = :correo")
     suspend fun obtenerUsuarioPorCorreo(correo: String): UsuarioEntity?
