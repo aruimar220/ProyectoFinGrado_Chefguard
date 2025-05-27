@@ -16,6 +16,7 @@ import java.security.MessageDigest
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import data.local.entity.UsuarioEntity
+import com.tuapp.data.remote.FirestoreSyncHelper
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -117,11 +118,14 @@ fun LoginScreen(navController: NavController) {
                                     if (usuarioLocal != null) {
                                         PreferencesManager.saveUserId(context, usuarioLocal.id)
                                         PreferencesManager.saveRememberMe(context, rememberMe)
+                                        FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(
+                                            context,
+                                            usuarioLocal.id
+                                        )
                                         navController.navigate("home") {
                                             popUpTo("login") { inclusive = true }
                                         }
                                     } else {
-                                        // Si no está en Room, buscar en Firestore
                                         FirebaseFirestore.getInstance()
                                             .collection("usuarios")
                                             .whereEqualTo("correo", email)
@@ -139,6 +143,7 @@ fun LoginScreen(navController: NavController) {
                                                         val newId = db.usuarioDao().insertarUsuario(user).toInt()
                                                         PreferencesManager.saveUserId(context, newId)
                                                         PreferencesManager.saveRememberMe(context, rememberMe)
+                                                        FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(context, newId)
                                                         navController.navigate("home") {
                                                             popUpTo("login") { inclusive = true }
                                                         }

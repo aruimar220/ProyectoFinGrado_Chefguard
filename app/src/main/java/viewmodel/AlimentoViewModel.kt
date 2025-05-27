@@ -1,5 +1,6 @@
 package com.example.chefguard.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tuapp.data.remote.FirestoreSyncHelper
@@ -37,4 +38,9 @@ class AlimentoViewModel : ViewModel() {
             FirestoreSyncHelper.eliminarAlimentoDeFirestore(alimentoId)
         }
     }
+
+    fun sincronizarConFirestore(context: Context, usuarioId: Int) {
+        FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(context, usuarioId)
+    }
+
 }

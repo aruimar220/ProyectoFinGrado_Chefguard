@@ -1,12 +1,17 @@
 package com.tuapp.data.remote
 
+import android.content.Context
 import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import data.local.AppDatabase
 import data.local.entity.AlertaEntity
 import data.local.entity.AlimentoEntity
 import data.local.entity.UsuarioEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 object FirestoreSyncHelper {
@@ -33,6 +38,49 @@ object FirestoreSyncHelper {
             )
             .addOnSuccessListener { println("Alimento sincronizado con Firestore") }
             .addOnFailureListener { e -> println("Error al sincronizar: ${e.message}") }
+    }
+
+    fun sincronizarAlimentosDesdeFirestore(context: Context, usuarioId: Int) {
+        val firestore = FirebaseFirestore.getInstance()
+        val db = AppDatabase.getDatabase(context)
+        val alimentoDao = db.alimentoDao()
+
+        firestore.collection("alimentos")
+            .whereEqualTo("ID_usuario", usuarioId)
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val nombre = document.getString("nombre") ?: continue
+                    val cantidad = document.getDouble("cantidad")?.toInt() ?: continue
+                    val fechaCaducidad = document.getString("fechaCaducidad") ?: continue
+                    val fechaConsumo = document.getString("fechaConsumo") ?: ""
+                    val lote = document.getString("lote") ?: ""
+                    val estado = document.getString("estado") ?: ""
+                    val proveedor = document.getString("proveedor") ?: ""
+                    val tipoAlimento = document.getString("tipoAlimento") ?: ""
+                    val ambiente = document.getString("ambiente") ?: ""
+
+                    val alimento = AlimentoEntity(
+                        nombre = nombre,
+                        cantidad = cantidad,
+                        fechaCaducidad = fechaCaducidad,
+                        fechaConsumo = fechaConsumo,
+                        lote = lote,
+                        estado = estado,
+                        proveedor = proveedor,
+                        tipoAlimento = tipoAlimento,
+                        ambiente = ambiente,
+                        ID_usuario = usuarioId
+                    )
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val yaExiste = alimentoDao.existeAlimentoIgual(alimento.nombre, usuarioId)
+                        if (!yaExiste) {
+                            alimentoDao.insertarAlimento(alimento)
+                        }
+                    }
+                }
+            }
     }
 
     fun eliminarAlimentoDeFirestore(alimentoId: Int) {

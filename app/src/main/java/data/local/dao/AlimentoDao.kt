@@ -32,5 +32,8 @@ interface AlimentoDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertarAlimentosSinDuplicados(alimentos: List<AlimentoEntity>)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM alimentos WHERE nombre = :nombre AND ID_usuario = :usuarioId LIMIT 1)")
+    suspend fun existeAlimentoIgual(nombre: String, usuarioId: Int): Boolean
+
 
 }
