@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import data.local.AppDatabase
 import com.example.chefguard.utils.PreferencesManager
+import com.tuapp.data.remote.FirestoreSyncHelper
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -29,6 +30,10 @@ fun HomeScreen(navController: NavController) {
             }
         }
         return
+    }
+
+    LaunchedEffect(Unit) {
+        FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(context)
     }
 
     var nombreUsuario by remember { mutableStateOf("Invitado") }

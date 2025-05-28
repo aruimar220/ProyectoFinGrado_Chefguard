@@ -118,10 +118,7 @@ fun LoginScreen(navController: NavController) {
                                     if (usuarioLocal != null) {
                                         PreferencesManager.saveUserId(context, usuarioLocal.id)
                                         PreferencesManager.saveRememberMe(context, rememberMe)
-                                        FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(
-                                            context,
-                                            usuarioLocal.id
-                                        )
+                                        FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(context)
                                         navController.navigate("home") {
                                             popUpTo("login") { inclusive = true }
                                         }
@@ -143,7 +140,7 @@ fun LoginScreen(navController: NavController) {
                                                         val newId = db.usuarioDao().insertarUsuario(user).toInt()
                                                         PreferencesManager.saveUserId(context, newId)
                                                         PreferencesManager.saveRememberMe(context, rememberMe)
-                                                        FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(context, newId)
+                                                        FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(context)
                                                         navController.navigate("home") {
                                                             popUpTo("login") { inclusive = true }
                                                         }

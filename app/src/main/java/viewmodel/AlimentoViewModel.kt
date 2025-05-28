@@ -39,8 +39,9 @@ class AlimentoViewModel : ViewModel() {
         }
     }
 
-    fun sincronizarConFirestore(context: Context, usuarioId: Int) {
-        FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(context, usuarioId)
+    fun sincronizarConFirestore(context: Context) {
+        viewModelScope.launch {
+            FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(context)
+        }
     }
-
 }
