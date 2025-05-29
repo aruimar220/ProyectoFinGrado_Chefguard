@@ -1,3 +1,5 @@
+package com.example.chefguard.ui.screens
+
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -10,9 +12,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.chefguard.utils.PreferencesManager
 import data.local.AppDatabase
 import data.local.entity.UsuarioEntity
-import com.example.chefguard.utils.PreferencesManager
 import kotlinx.coroutines.launch
 
 @Composable
@@ -36,8 +38,9 @@ fun EditProfileScreen(navController: NavController) {
     }
 
     var nombre by remember { mutableStateOf(usuario?.nombre ?: "") }
-    var correo by remember { mutableStateOf(usuario?.correo ?: "") }
-    var contrasena by remember { mutableStateOf("") } // Contraseña vacía por defecto
+    val correoActual = usuario?.correo ?: ""
+    var contrasena by remember { mutableStateOf("") }
+    var nombreError by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
 
@@ -58,17 +61,32 @@ fun EditProfileScreen(navController: NavController) {
 
         OutlinedTextField(
             value = nombre,
-            onValueChange = { nombre = it },
+            onValueChange = {
+                nombre = it
+                if (it.isNotBlank()) {
+                    nombreError = false
+                }
+            },
             label = { Text("Nombre") },
+            isError = nombreError,
             modifier = Modifier.fillMaxWidth()
         )
+        if (nombreError) {
+            Text(
+                text = "El nombre no puede estar vacío",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.align(Alignment.Start).padding(start = 16.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = correo,
-            onValueChange = { correo = it },
+            value = correoActual,
+            onValueChange = {},
             label = { Text("Correo Electrónico") },
+            enabled = false,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -86,10 +104,14 @@ fun EditProfileScreen(navController: NavController) {
 
         Button(
             onClick = {
+                if (nombre.isBlank()) {
+                    nombreError = true
+                    return@Button
+                }
                 val usuarioActualizado = UsuarioEntity(
                     id = userId,
                     nombre = nombre,
-                    correo = correo,
+                    correo = correoActual,
                     contrasena = contrasena.ifBlank { usuario?.contrasena ?: "" }
                 )
 
@@ -99,6 +121,7 @@ fun EditProfileScreen(navController: NavController) {
                     navController.popBackStack()
                 }
             },
+            enabled = nombre.isNotBlank(),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Guardar Cambios")

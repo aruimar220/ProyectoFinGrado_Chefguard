@@ -118,6 +118,7 @@ fun LoginScreen(navController: NavController) {
                                     if (usuarioLocal != null) {
                                         PreferencesManager.saveUserId(context, usuarioLocal.id)
                                         PreferencesManager.saveRememberMe(context, rememberMe)
+                                        db.usuarioDao().actualizarContraseña(usuarioLocal.id, encryptedPassword)
                                         FirestoreSyncHelper.sincronizarAlimentosDesdeFirestore(context)
                                         navController.navigate("home") {
                                             popUpTo("login") { inclusive = true }

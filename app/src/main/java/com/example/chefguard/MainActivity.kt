@@ -1,7 +1,7 @@
 package com.example.chefguard
 
 import AlertNotificationWorker
-import EditProfileScreen
+import com.example.chefguard.ui.screens.EditProfileScreen
 import ProfileScreen
 import android.Manifest
 import android.os.Bundle
@@ -132,7 +132,7 @@ class MainActivity : ComponentActivity() {
         }
 
         val workRequest =
-            PeriodicWorkRequestBuilder<AlertNotificationWorker>(24, TimeUnit.HOURS).build()
+            PeriodicWorkRequestBuilder<AlertNotificationWorker>(15, TimeUnit.MINUTES).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "AlertNotificationWork",
             ExistingPeriodicWorkPolicy.KEEP,
