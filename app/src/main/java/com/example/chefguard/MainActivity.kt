@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        if (currentRoute !in listOf("login", "register")) {
+                        if (currentRoute !in listOf("login", "register", "recover")) {
                             BottomNavBar(navController)
                         }
                     }

@@ -135,20 +135,5 @@ object FirestoreSyncHelper {
         db.collection("usuarios").document(userId.toString()).delete().await()
     }
 
-
-
-    fun syncAlertaToFirestore(alerta: AlertaEntity) {
-        val alertaMap = mapOf(
-            "ID_usuario" to alerta.ID_usuario,
-            "mensaje" to alerta.mensaje,
-            "fecha" to alerta.fecha,
-            "tipo" to alerta.tipo
-        )
-
-        firestore.collection("alertas")
-            .add(alertaMap)
-            .addOnSuccessListener { println(" Alerta subida a Firestore") }
-            .addOnFailureListener { e -> println("Error al subir alerta: ${e.message}") }
-    }
 }
 
