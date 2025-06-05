@@ -16,10 +16,11 @@ import com.example.chefguard.utils.PreferencesManager
 import com.example.chefguard.viewmodel.AlimentoViewModel
 
 @Composable
-fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoViewModel = viewModel()) {
-    val context = LocalContext.current
-    val db = AppDatabase.getDatabase(context)
+fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoViewModel = viewModel()) { // Composición de la pantalla de edición de un alimento con su contenido y botones correspondientes
+    val context = LocalContext.current // Obtiene el contexto de la aplicación para acceder a la base de datos y a las preferencias compartidas
+    val db = AppDatabase.getDatabase(context) // Obtiene la instancia de la base de datos utilizando el contexto proporcionado
 
+    // Variables para almacenar los valores de los campos de entrada de la pantalla de edición de alimento
     var nombre by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
     var fechaCaducidad by remember { mutableStateOf("") }
@@ -32,12 +33,12 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
     val userId = PreferencesManager.getUserId(context)
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(id) {
+    LaunchedEffect(id) { // Ejecuta una acción una vez en el ciclo de vida de la composición cuando cambia el valor de id
         viewModel.cargarAlimento(db, id)
     }
 
-    val alimento = viewModel.alimento.collectAsState().value
-    LaunchedEffect(alimento) {
+    val alimento = viewModel.alimento.collectAsState().value // Obtiene el alimento de la base de datos utilizando el ViewModel
+    LaunchedEffect(alimento) { // Ejecuta una acción una vez en el ciclo de vida de la composición cuando cambia el valor del alimento
         if (alimento != null) {
             nombre = alimento.nombre
             cantidad = alimento.cantidad.toString()
@@ -51,17 +52,17 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
         }
     }
 
-    Column(
+    Column( // Composición de la columna para mostrar los campos de entrada de la pantalla de edición de alimento en la pantalla de edición de alimento
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(24.dp),
         verticalArrangement = Arrangement.Top
-    ) {
+    ) { // Título de la pantalla de edición de alimento con su estilo y botones correspondientes
         Text("Editar Alimento", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(20.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el nombre del alimento con su acción correspondiente
             value = nombre,
             onValueChange = { nombre = it },
             label = { Text("Nombre del alimento") },
@@ -70,7 +71,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para la cantidad del alimento con su acción correspondiente
             value = cantidad,
             onValueChange = { cantidad = it },
             label = { Text("Cantidad") },
@@ -79,7 +80,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para la fecha de caducidad del alimento con su acción correspondiente
             value = fechaCaducidad,
             onValueChange = { fechaCaducidad = it },
             label = { Text("Fecha de caducidad") },
@@ -88,7 +89,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para la fecha de consumo preferente del alimento con su acción correspondiente
             value = fechaConsumo,
             onValueChange = { fechaConsumo = it },
             label = { Text("Fecha de consumo preferente") },
@@ -97,7 +98,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el lote del alimento con su acción correspondiente
             value = lote,
             onValueChange = { lote = it },
             label = { Text("Lote") },
@@ -106,7 +107,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el estado del alimento con su acción correspondiente
             value = estado,
             onValueChange = { estado = it },
             label = { Text("Estado (Disponible / Agotado / Caducado)") },
@@ -115,7 +116,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el proveedor del alimento con su acción correspondiente
             value = proveedor,
             onValueChange = { proveedor = it },
             label = { Text("Proveedor") },
@@ -124,7 +125,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el tipo de alimento con su acción correspondiente
             value = tipoAlimento,
             onValueChange = { tipoAlimento = it },
             label = { Text("Tipo de alimento") },
@@ -133,7 +134,7 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el ambiente del alimento con su acción correspondiente
             value = ambiente,
             onValueChange = { ambiente = it },
             label = { Text("Ambiente") },
@@ -142,8 +143,8 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Button(
-            onClick = {
+        Button( // Botón de guardar cambios con su acción correspondiente y navega a la pantalla de inventario después de guardar los cambios del alimento
+            onClick = { // Guarda los cambios del alimento en la base de datos utilizando el ViewModel y navega a la pantalla de inventario después de guardar los cambios
                 val alimentoEditado = AlimentoEntity(
                     id = id,
                     ID_usuario = userId,
@@ -157,12 +158,12 @@ fun EditItemScreen(navController: NavController, id: Int, viewModel: AlimentoVie
                     tipoAlimento = tipoAlimento.ifBlank { null },
                     ambiente = ambiente.ifBlank { null }
                 )
-                viewModel.guardarAlimento(db, alimentoEditado)
-                navController.navigate("inventory")
+                viewModel.guardarAlimento(db, alimentoEditado) // Guarda los cambios del alimento en la base de datos utilizando el ViewModel
+                navController.navigate("inventory") // Navega a la pantalla de inventario después de guardar los cambios
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Guardar cambios")
+            Text("Guardar cambios") // Texto del botón de guardar cambios con su estilo
         }
     }
 }

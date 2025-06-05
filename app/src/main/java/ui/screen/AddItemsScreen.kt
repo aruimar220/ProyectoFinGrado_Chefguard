@@ -17,7 +17,8 @@ import com.example.chefguard.viewmodel.AlimentoViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddItemsScreen(navController: NavController) {
+fun AddItemsScreen(navController: NavController) { // Composición de la pantalla de añadir alimentos con su contenido y botones correspondientes
+    // Variables para almacenar los valores ingresados por el usuario en los campos de entrada
     var nombre by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
     var fechaCaducidad by remember { mutableStateOf("") }
@@ -28,24 +29,24 @@ fun AddItemsScreen(navController: NavController) {
     var tipoAlimento by remember { mutableStateOf("") }
     var ambiente by remember { mutableStateOf("") }
 
-    val context = LocalContext.current
-    val db = AppDatabase.getDatabase(context)
-    val coroutineScope = rememberCoroutineScope()
-    val userId = PreferencesManager.getUserId(context)
-    val scrollState = rememberScrollState()
-    val viewModel: AlimentoViewModel = viewModel()
+    val context = LocalContext.current // Obtiene el contexto de la aplicación para acceder a la base de datos y a las preferencias compartidas
+    val db = AppDatabase.getDatabase(context) // Obtiene la instancia de la base de datos utilizando el contexto proporcionado
+    val coroutineScope = rememberCoroutineScope() // Crea un ámbito de corrutinas para ejecutar corrutinas asíncronas
+    val userId = PreferencesManager.getUserId(context) // Obtiene el ID del usuario de las preferencias compartidas y navega a la pantalla de inicio de sesión si no hay un usuario
+    val scrollState = rememberScrollState() // Crea un estado de desplazamiento para el contenido de la pantalla
+    val viewModel: AlimentoViewModel = viewModel() // Crea un objeto ViewModel para manejar la lógica de la pantalla de añadir alimentos
 
-    Column(
+    Column( // Composición de la columna para mostrar los campos de entrada de la pantalla de añadir alimentos en la pantalla de añadir alimentos con su acción correspondiente
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(24.dp),
         verticalArrangement = Arrangement.Top
-    ) {
-        Text("Añadir Alimento", style = MaterialTheme.typography.headlineMedium)
+    ) { // Título de la pantalla de añadir alimentos con su estilo y botones correspondientes
+        Text("Añadir Alimento", style = MaterialTheme.typography.headlineMedium) // Texto del título de la pantalla de añadir alimentos con su estilo y acción correspondiente al hacer clic en él
         Spacer(modifier = Modifier.height(20.dp))
 
-        OutlinedTextField(
+        OutlinedTextField(// Campo de entrada para el nombre del alimento con su acción correspondiente
             value = nombre,
             onValueChange = { nombre = it },
             label = { Text("Nombre del alimento") },
@@ -54,7 +55,7 @@ fun AddItemsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para la cantidad del alimento con su acción correspondiente
             value = cantidad,
             onValueChange = { cantidad = it },
             label = { Text("Cantidad") },
@@ -63,7 +64,7 @@ fun AddItemsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para la fecha de caducidad del alimento con su acción correspondiente
             value = fechaCaducidad,
             onValueChange = { fechaCaducidad = it },
             label = { Text("Fecha de caducidad (AAAA-MM-DD)") },
@@ -72,7 +73,7 @@ fun AddItemsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para la fecha de consumo del alimento con su acción correspondiente
             value = fechaConsumo,
             onValueChange = { fechaConsumo = it },
             label = { Text("Fecha de consumo preferente (AAAA-MM-DD)") },
@@ -81,7 +82,7 @@ fun AddItemsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el lote del alimento con su acción correspondiente
             value = lote,
             onValueChange = { lote = it },
             label = { Text("Lote") },
@@ -90,7 +91,7 @@ fun AddItemsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el estado del alimento con su acción correspondiente
             value = estado,
             onValueChange = { estado = it },
             label = { Text("Estado (Disponible / Agotado / Caducado)") },
@@ -99,7 +100,7 @@ fun AddItemsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el proveedor del alimento con su acción correspondiente
             value = proveedor,
             onValueChange = { proveedor = it },
             label = { Text("Proveedor") },
@@ -108,7 +109,7 @@ fun AddItemsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el tipo de alimento con su acción correspondiente
             value = tipoAlimento,
             onValueChange = { tipoAlimento = it },
             label = { Text("Tipo de alimento") },
@@ -117,7 +118,7 @@ fun AddItemsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        OutlinedTextField(
+        OutlinedTextField( // Campo de entrada para el ambiente del alimento con su acción correspondiente
             value = ambiente,
             onValueChange = { ambiente = it },
             label = { Text("Ambiente") },
@@ -126,8 +127,8 @@ fun AddItemsScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Button(
-            onClick = {
+        Button( // Botón de guardar alimento con su acción correspondiente y validación correspondiente a los campos de entrada
+            onClick = { // Guarda el alimento en la base de datos con los valores ingresados en los campos de entrada
                 if (nombre.isNotBlank() && cantidad.toIntOrNull() != null) {
                     val nuevoAlimento = AlimentoEntity(
                         ID_usuario = userId,
@@ -142,16 +143,16 @@ fun AddItemsScreen(navController: NavController) {
                         ambiente = ambiente
                     )
 
-                    coroutineScope.launch {
+                    coroutineScope.launch { // Lanza una corrutina para guardar el alimento en la base de datos utilizando el ViewModel
                         viewModel.guardarAlimento(db, nuevoAlimento)
                     }
 
-                    navController.navigate("inventory")
+                    navController.navigate("inventory") // Navega a la pantalla de inventario después de guardar el alimento
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Guardar alimento")
+            Text("Guardar alimento") // Texto del botón de guardar alimento con su estilo y acción correspondiente al hacer clic en él
         }
     }
 }
